@@ -135,18 +135,75 @@ html_content = f'''<!DOCTYPE html>
       background: radial-gradient(circle at center, #252528 0%, #17181c 25%, #0e0e12 45%, #1c1d22 65%, #0a0b0d 85%, #020204 100%);
       box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.18), 0 4px 15px rgba(0,0,0,0.85);
     }}
-    @keyframes strobePulse {{
-      0% {{ background-color: #07080c; box-shadow: inset 0 0 60px rgba(168, 85, 247, 0.35); }}
-      25% {{ background-color: #220330; box-shadow: inset 0 0 95px rgba(236, 72, 153, 0.6); }}
-      50% {{ background-color: #02202e; box-shadow: inset 0 0 95px rgba(6, 182, 212, 0.6); }}
-      75% {{ background-color: #2b1301; box-shadow: inset 0 0 95px rgba(249, 115, 22, 0.6); }}
-      100% {{ background-color: #07080c; box-shadow: inset 0 0 60px rgba(168, 85, 247, 0.35); }}
+    /* Club Strobe Lighting & Laser FX */
+    .club-strobe-overlay {{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }}
-    .strobe-active {{
-      animation: strobePulse 1.4s ease-in-out infinite alternate !important;
+
+    body.strobe-active .club-strobe-overlay {{
+      opacity: 1;
+      animation: realClubStrobe 0.4s infinite !important;
     }}
+
+    @keyframes realClubStrobe {{
+      0%, 100% {{
+        background: transparent;
+        opacity: 0;
+      }}
+      12% {{
+        background: radial-gradient(circle at 50% 30%, rgba(236, 72, 153, 0.5), transparent 70%);
+        opacity: 0.85;
+      }}
+      25% {{
+        background: transparent;
+        opacity: 0;
+      }}
+      40% {{
+        background: radial-gradient(circle at 80% 25%, rgba(6, 182, 212, 0.55), transparent 60%);
+        opacity: 0.9;
+      }}
+      55% {{
+        background: transparent;
+        opacity: 0;
+      }}
+      70% {{
+        background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.7), rgba(168, 85, 247, 0.4) 60%, transparent 80%);
+        opacity: 0.95;
+      }}
+      85% {{
+        background: transparent;
+        opacity: 0;
+      }}
+    }}
+
+    body.strobe-active .club-stage-backdrop {{
+      animation: clubLaserStrobePulse 0.35s ease-in-out infinite alternate !important;
+    }}
+
+    @keyframes clubLaserStrobePulse {{
+      0% {{ filter: brightness(0.9) contrast(1.1) saturate(1.1); }}
+      30% {{ filter: brightness(1.6) contrast(1.35) saturate(1.6); }}
+      65% {{ filter: brightness(1.05) contrast(1.15) saturate(1.2); }}
+      85% {{ filter: brightness(1.75) contrast(1.4) saturate(1.8); }}
+      100% {{ filter: brightness(0.95) contrast(1.1) saturate(1.1); }}
+    }}
+
     .strobe-active-glow {{
       box-shadow: 0 0 60px rgba(236, 72, 153, 0.8), inset 0 0 35px rgba(168, 85, 247, 0.6) !important;
+    }}
+
+    .strobe-beat-flash {{
+      animation: beatFlashPulse 0.2s ease-out !important;
+    }}
+    @keyframes beatFlashPulse {{
+      0% {{ opacity: 1; background: rgba(255, 255, 255, 0.5); }}
+      100% {{ opacity: 0; background: transparent; }}
     }}
 
     /* Real High-End Club Crowd & Laser Stage Backdrop */
@@ -175,6 +232,8 @@ html_content = f'''<!DOCTYPE html>
 
   <!-- 🌟 High-Definition Cinematic Club Crowd & Laser Stage Backdrop -->
   <div class="club-stage-backdrop"></div>
+  <!-- 🚨 Real Club Strobe Light & Laser Sweep Layer -->
+  <div id="clubStrobeOverlay" class="club-strobe-overlay"></div>
 
   <!-- Native Background Audio Player -->
   <audio id="realBgmAudio" preload="auto"></audio>
@@ -2490,6 +2549,11 @@ html_content = f'''<!DOCTYPE html>
 
       if (state.strobeOn) {{
         document.body.classList.add('strobe-active-glow');
+        const overlay = document.getElementById('clubStrobeOverlay');
+        if (overlay) {{
+          overlay.classList.add('strobe-beat-flash');
+          setTimeout(() => overlay.classList.remove('strobe-beat-flash'), 200);
+        }}
         setTimeout(() => document.body.classList.remove('strobe-active-glow'), 250);
       }}
     }}
@@ -2549,10 +2613,15 @@ html_content = f'''<!DOCTYPE html>
         soundEngine.playAirhorn();
 
         const q = encodeURIComponent(`${{cur.artist}} ${{cur.title}}`);
-        showToast(`🟢 Spotify로 이동: [${{cur.title}}] 완곡 스트리밍!`);
+        showToast(`🟢 Spotify로 이동: [${{cur.title}}] 완곡 재생!`);
         
-        const spotifyAppUri = `spotify:search:${{q}}`;
-        const spotifyWebUrl = `https://open.spotify.com/search/${{q}}`;
+        let spotifyAppUri = `spotify:search:${{q}}`;
+        let spotifyWebUrl = `https://open.spotify.com/search/${{q}}`;
+
+        if (cur.spotifyTrackId) {{
+          spotifyAppUri = `spotify:track:${{cur.spotifyTrackId}}:play`;
+          spotifyWebUrl = `https://open.spotify.com/track/${{cur.spotifyTrackId}}`;
+        }}
         
         const start = Date.now();
         window.location.href = spotifyAppUri;
