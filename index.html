@@ -450,23 +450,23 @@
       <div class="space-y-1.5">
         <label class="text-xs font-black text-zinc-200 flex items-center justify-between">
           <span class="flex items-center space-x-2">
-            <span class="px-1.5 py-0.5 rounded bg-pink-950 text-neonPink border border-pink-600/50 font-mono text-[10px]">05</span>
-            <span>술자리 떼창 & 진행 모드</span>
+            <span class="px-1.5 py-0.5 rounded bg-cyan-950 text-neonCyan border border-cyan-600/50 font-mono text-[10px]">05</span>
+            <span>술자리 진행 모드</span>
           </span>
           <span class="text-[10px] text-zinc-400 font-normal">진행 중 언제든 변경 가능</span>
         </label>
         <div class="grid grid-cols-2 gap-2 text-xs font-medium">
-          <button type="button" onclick="selectPlayMode('sing', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-neonPink border-b-pink-400 bg-pink-950/80 text-white text-center shadow-[0_0_15px_rgba(236,72,153,0.4)]">
-            <span class="block font-black text-xs">🎤 떼창 모드 (추천)</span>
-            <span class="text-[9px] text-pink-200/90 block mt-0.5">화면에 킬링파트 가사를 보며 함께 떼창</span>
+          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-neonCyan border-b-cyan-400 bg-cyan-950/80 text-white text-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+            <span class="block font-black text-xs">⚡️ 30초 자동믹싱 (추천)</span>
+            <span class="text-[9px] text-cyan-200/90 block mt-0.5">30초 재생 후 다음 라운드로 빠른 전환</span>
           </button>
-          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
-            <span class="block font-bold text-xs">⚡️ 30초 자동믹싱</span>
-            <span class="text-[9px] text-zinc-400 block mt-0.5">30초 재생 후 다음 라운드로 빠른 전환</span>
+          <button type="button" onclick="selectPlayMode('manual', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
+            <span class="block font-bold text-xs">⏸ 수동 믹싱</span>
+            <span class="text-[9px] text-zinc-400 block mt-0.5">현재 분위기 유지 & 직접 다음 곡 넘기기</span>
           </button>
         </div>
         <div class="text-[9.5px] text-zinc-400 text-center mt-1.5 font-medium">
-          💡 완곡을 듣고 싶을 땐 플레이어 상단의 <span class="text-spotifyGreen font-bold">🟢 Spotify 완곡</span> 버튼을 누르면 즉시 연결됩니다!
+          💡 완곡을 듣고 싶을 땐 상단의 <span class="text-spotifyGreen font-bold">🟢 Spotify 완곡</span> 버튼을 누르면 즉시 연결됩니다!
         </div>
       </div>
 
@@ -577,15 +577,15 @@
         <!-- Mode Switcher & Transport Controls -->
         <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800/80">
           
-          <!-- Mode Toggle Pills: 🎤 떼창 모드 vs ⚡️ 30초 믹싱 vs 🟢 Spotify 완곡 -->
+          <!-- Mode Toggle Pills: ⚡️ 30초 믹싱 vs ⏸ 수동 믹싱 vs 🟢 Spotify 완곡 -->
           <div class="flex items-center space-x-1.5 bg-zinc-950/90 p-1 rounded-xl border border-zinc-800 text-[11px]">
-            <button onclick="setPlayMode('sing')" id="modeBtnSing" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900" title="화면에 떼창 가사를 띄워 다 함께 부르기">
-              🎤 떼창 모드
-            </button>
-            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="30초 후 다음 라운드로 자동 믹싱">
+            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonCyan text-black shadow-[0_0_12px_rgba(6,182,212,0.5)] border-b-cyan-700 transition" title="30초 후 다음 라운드로 자동 믹싱">
               ⚡️ 30초 믹싱
             </button>
-            <button onclick="openSpotifyDirect()" id="modeBtnSpotify" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-emerald-950 text-spotifyGreen border border-emerald-700 border-b-emerald-950 hover:bg-emerald-900 shadow-[0_0_10px_rgba(29,185,84,0.3)] flex items-center space-x-1" title="스포티파이 앱에서 3~4분 완곡 재생">
+            <button onclick="setPlayMode('manual')" id="modeBtnManual" class="arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition" title="수동으로 다음 곡 넘기기">
+              ⏸ 수동 믹싱
+            </button>
+            <button onclick="openSpotifyDirect()" id="modeBtnSpotify" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-emerald-950 text-spotifyGreen border border-emerald-700 border-b-emerald-950 hover:bg-emerald-900 shadow-[0_0_10px_rgba(29,185,84,0.3)] flex items-center space-x-1 transition" title="스포티파이 앱에서 3~4분 완곡 재생">
               <span>🟢 Spotify 완곡</span>
               <span>↗</span>
             </button>
@@ -611,25 +611,25 @@
         </div>
       </div>
 
-      <!-- 🎤 SING-ALONG LYRICS ZONE (떼창 포인트 가사 카드) -->
-      <div id="singAlongCard" class="bg-gradient-to-r from-pink-950/90 via-purple-950/80 to-zinc-950 border-2 border-neonPink/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(236,72,153,0.35)] space-y-1.5 transition duration-300">
+      <!-- 🎧 DJ TRACK NOTE (곡 한줄 설명 / 술자리 가이드 카드) -->
+      <div id="djTrackNoteCard" class="bg-gradient-to-r from-purple-950/90 via-zinc-900/90 to-zinc-950 border-2 border-neonPurple/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(168,85,247,0.35)] space-y-1.5 transition duration-300">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-1.5">
-            <span class="text-sm animate-bounce">🎤</span>
-            <span class="text-xs font-black tracking-wider text-pink-300">떼창 포인트 (킬링파트 가사)</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-900/60 text-pink-200 border border-pink-500/40 font-bold">SING-ALONG</span>
+            <span class="text-sm animate-pulse">🎧</span>
+            <span class="text-xs font-black tracking-wider text-purple-300">DJ TRACK NOTE (한줄 설명)</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-900/60 text-purple-200 border border-purple-500/40 font-bold">DJ PICK</span>
           </div>
           <button onclick="openSpotifyDirect()" class="text-[10px] font-black text-spotifyGreen hover:text-emerald-300 flex items-center space-x-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-700/60 transition" title="스포티파이에서 완곡 듣기">
             <span>🟢 Spotify 완곡</span>
             <span>↗</span>
           </button>
         </div>
-        <div id="singAlongLyrics" class="text-sm sm:text-base font-black text-white text-center leading-relaxed tracking-wide py-2 px-3 bg-black/50 rounded-xl border border-pink-500/30 shadow-inner">
-          "가사 불러오는 중..."
+        <div id="djTrackNoteText" class="text-xs sm:text-sm font-bold text-zinc-100 text-center leading-relaxed tracking-wide py-2.5 px-3 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner">
+          "DJ 추천 코멘트 불러오는 중..."
         </div>
         <div class="flex items-center justify-between text-[9.5px] text-zinc-400 px-1 pt-0.5">
-          <span>🍻 다 함께 술잔 들고 후렴구를 소리쳐보세요!</span>
-          <a id="lyricsSearchLink" href="#" target="_blank" class="hover:text-pink-300 underline font-medium">가사 전문 검색 ↗</a>
+          <span>🍻 이 곡에 어울리는 술자리 바이브를 즐겨보세요!</span>
+          <span class="text-purple-300/90 font-semibold">술자리 맞춤 BGM 🎶</span>
         </div>
       </div>
 
@@ -785,7 +785,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "vjl_uRTeOfU",
-    "lyrics": "모두 그에게 말해 또 왔네 새끼 / 난 매일 밤 비행길 타 / Yeah I'm a rockstar, I'm a shining METEOR!"
+    "lyrics": "모두 그에게 말해 또 왔네 새끼 / 난 매일 밤 비행길 타 / Yeah I'm a rockstar, I'm a shining METEOR!",
+    "description": "성공의 맛이 느껴지는 청춘 앤섬! 술잔 높이 들고 외치는 대국민 떼창곡 🌟"
   },
   {
     "title": "SMF",
@@ -795,7 +796,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "XDgSWybkafM",
-    "lyrics": "Street Man Fighter! 비트 위에 불을 질러 / 춤춰라 이 밤이 다 타버릴 때까지!"
+    "lyrics": "Street Man Fighter! 비트 위에 불을 질러 / 춤춰라 이 밤이 다 타버릴 때까지!",
+    "description": "스맨파를 위해 만든 묵직하고 거친 트랩 비트! 댄스 배틀 텐션 폭발 🔥"
   },
   {
     "title": "New Thing (feat. Homies)",
@@ -805,7 +807,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "azaZt7eccnc",
-    "lyrics": "온몸에 전율이 흘러 새삥! / 머리부터 발끝까지 완전 새삥!"
+    "lyrics": "온몸에 전율이 흘러 새삥! / 머리부터 발끝까지 완전 새삥!",
+    "description": "스맨파 계급 미션 메가히트! 머리부터 발끝까지 힙해지는 비트 👟"
   },
   {
     "title": "Any Song",
@@ -815,7 +818,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "M0L066lsPgA",
-    "lyrics": "왜들 그리 다운돼 있어? 뭐가 문제야 say something! / 분위기가 겁나 싸해, 아무 노래나 일단 틀어!"
+    "lyrics": "왜들 그리 다운돼 있어? 뭐가 문제야 say something! / 분위기가 겁나 싸해, 아무 노래나 일단 틀어!",
+    "description": "싸해진 술자리도 3초 만에 춤추게 만드는 챌린지 열풍의 원조 🎶"
   },
   {
     "title": "Okey Dokey",
@@ -825,7 +829,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "oTR8BDFcT3o",
-    "lyrics": "Is that true? Yes! Okey dokey yo! / 정말 그래? Yes! Okey dokey yo!"
+    "lyrics": "Is that true? Yes! Okey dokey yo! / 정말 그래? Yes! Okey dokey yo!",
+    "description": "'Is that true? Yes!' 외치며 흥이 폭발하는 쇼미더머니 레전드 뱅어 🤙"
   },
   {
     "title": "Boys And Girls (Feat. Babylon)",
@@ -835,7 +840,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "u98xBeAHQ20",
-    "lyrics": "I'm a boy, you are a girl / 오늘 밤엔 우리 둘이 세상의 중심!"
+    "lyrics": "I'm a boy, you are a girl / 오늘 밤엔 우리 둘이 세상의 중심!",
+    "description": "트렌디한 트로피컬 비트와 지코의 쫀득한 랩이 어우러진 드라이브 송 🌴"
   },
   {
     "title": "Smoke",
@@ -845,7 +851,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "FbcUhXIhi1c",
-    "lyrics": "Smoke, smoke! 연기 속에 피어나는 열기 / 다 태워버려 남김없이 Smoke!"
+    "lyrics": "Smoke, smoke! 연기 속에 피어나는 열기 / 다 태워버려 남김없이 Smoke!",
+    "description": "스우파2 리더 계급 미션곡! 라이터 불 켜는 시그니처 비트의 열기 💨"
   },
   {
     "title": "Guilty",
@@ -855,7 +862,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "ppjRIEgcXIY",
-    "lyrics": "내가 죽일 놈이지 뭐 / 어쩌겠어 네 맘 아프게 한 죄인인데"
+    "lyrics": "내가 죽일 놈이지 뭐 / 어쩌겠어 네 맘 아프게 한 죄인인데",
+    "description": "노래방에서 랩 좀 한다는 사람들은 무조건 부르는 감성 힙합의 전설 🥀"
   },
   {
     "title": "Day Day (feat. Jay Park)",
@@ -865,7 +873,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "KggW9W89aMk",
-    "lyrics": "우린 영원할 거야 Day Day! / 매일매일이 축제 같은 날들 Day Day!"
+    "lyrics": "우린 영원할 거야 Day Day! / 매일매일이 축제 같은 날들 Day Day!",
+    "description": "쇼미더머니 사상 최고의 완벽한 그루브! 그레이 비트와 비와의 완벽 조화 ✨"
   },
   {
     "title": "Forever",
@@ -875,7 +884,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "E9n7eQAmG28",
-    "lyrics": "내 삶의 주인은 오직 나 하나뿐 / 영원히 빛날 거야 Forever!"
+    "lyrics": "내 삶의 주인은 오직 나 하나뿐 / 영원히 빛날 거야 Forever!",
+    "description": "한 호흡으로 랩을 쏟아내는 괴물 같은 딕션과 카리스마의 정점 🎤"
   },
   {
     "title": "Simon Dominic",
@@ -885,7 +895,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "YKbtQdyv7Ys",
-    "lyrics": "사이먼 사이먼 도미닉, 사이먼 디 오 엠 아이 엔 아이 씨 오 오! / 내 이름 외쳐봐!"
+    "lyrics": "사이먼 사이먼 도미닉, 사이먼 디 오 엠 아이 엔 아이 씨 오 오! / 내 이름 외쳐봐!",
+    "description": "'사이먼 도미닉' 떼창으로 홍대 클럽을 뒤흔들었던 쌈디의 시그니처 👑"
   },
   {
     "title": "Siren",
@@ -895,7 +906,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "ZfUm6TQFrI0",
-    "lyrics": "울려 퍼져 사이렌! / 바닥에서 올라와 정상까지 찍어 Siren!"
+    "lyrics": "울려 퍼져 사이렌! / 바닥에서 올라와 정상까지 찍어 Siren!",
+    "description": "영앤리치 흙수저의 성공 신화! 거리를 강타한 호미들의 감성 트랩 🚨"
   },
   {
     "title": "Don’t Call Me",
@@ -905,7 +917,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "bdgM8A-ygLU",
-    "lyrics": "돈 Call Me! 바빠 죽겠으니까 전화하지 마 / 난 지금 돈 벌러 가는 길이니까!"
+    "lyrics": "돈 Call Me! 바빠 죽겠으니까 전화하지 마 / 난 지금 돈 벌러 가는 길이니까!",
+    "description": "'빠끄!'를 외치게 만드는 염따의 유쾌한 플렉스 찬가 💸"
   },
   {
     "title": "Born Hater (String Fantasia “Maximus Haterus” No.18 in C minor)",
@@ -915,7 +928,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "3s74_OxR1ik",
-    "lyrics": "I'm a born hater! / 뭐라 떠들든 내 갈 길을 갈 뿐이야!"
+    "lyrics": "I'm a born hater! / 뭐라 떠들든 내 갈 길을 갈 뿐이야!",
+    "description": "악플러들에게 날리는 에픽하이와 역대급 피처링 군단의 통쾌한 사이다 랩 🤬"
   },
   {
     "title": "Fly",
@@ -925,7 +939,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "dl6U-u9lNSo",
-    "lyrics": "두 손을 하늘 위로 뻗어 Fly! / 지친 날개를 펴고 더 높은 곳으로 날아올라!"
+    "lyrics": "두 손을 하늘 위로 뻗어 Fly! / 지친 날개를 펴고 더 높은 곳으로 날아올라!",
+    "description": "두 손을 하늘 위로 뻗게 만드는 한국 힙합 역사상 가장 대중적인 힐링 명곡 🕊️"
   },
   {
     "title": "Unlock It (feat. Kim Petras and Jay Park)",
@@ -935,7 +950,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "YPS-pML1Ab0",
-    "lyrics": "Unlock it, lock it, lock it! / 자물쇠를 풀고 너의 맘속으로 들어가!"
+    "lyrics": "Unlock it, lock it, lock it! / 자물쇠를 풀고 너의 맘속으로 들어가!",
+    "description": "틱톡을 뒤흔든 몽환적인 하이퍼팝 비트와 박재범의 감각적인 보컬 🔓"
   },
   {
     "title": "GANADARA (feat. IU)",
@@ -945,7 +961,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "AwCvpQSUMBg",
-    "lyrics": "가나다라 마바사 사랑해 / 너에게 전하고 싶은 달콤한 고백 GANADARA"
+    "lyrics": "가나다라 마바사 사랑해 / 너에게 전하고 싶은 달콤한 고백 GANADARA",
+    "description": "한국어를 배우는 설렘을 담은 박재범과 아이유의 달콤한 R&B 콜라보 🍯"
   },
   {
     "title": "Joah",
@@ -955,7 +972,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "Ye-mbO9KOn0",
-    "lyrics": "네가 좋아 좋아 너무 좋아 / 세상 그 어떤 것보다 네가 좋아!"
+    "lyrics": "네가 좋아 좋아 너무 좋아 / 세상 그 어떤 것보다 네가 좋아!",
+    "description": "봄바람처럼 설레는 박재범표 감미로운 R&B 세레나데 🌸"
   },
   {
     "title": "Hold Me Tight (feat. Crush)",
@@ -965,7 +983,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "D5E5UDrCU2I",
-    "lyrics": "감아줘 네 두 팔로 날 꽉 안아줘 / 어지러운 세상 속에서 날 붙잡아줘"
+    "lyrics": "감아줘 네 두 팔로 날 꽉 안아줘 / 어지러운 세상 속에서 날 붙잡아줘",
+    "description": "술자리 무드를 촉촉하게 만들어주는 로꼬와 크러쉬의 명품 케미 🌙"
   },
   {
     "title": "Too Much (feat. DEAN)",
@@ -975,7 +994,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "17RDUVddNa8",
-    "lyrics": "너무 많은 생각들은 버려 / 지금 이 순간만을 즐기자고 Too much!"
+    "lyrics": "너무 많은 생각들은 버려 / 지금 이 순간만을 즐기자고 Too much!",
+    "description": "딘의 매혹적인 R&B 보컬과 로꼬의 감각적인 래핑이 돋보이는 곡 🕶️"
   },
   {
     "title": "We Are (feat. Loco & GRAY)",
@@ -985,7 +1005,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "H04mbKV44so",
-    "lyrics": "우원재 그레이 로꼬가 뭉쳤다 / 어차피 시간 지나면 다 잊혀질 고민들 시차!"
+    "lyrics": "우원재 그레이 로꼬가 뭉쳤다 / 어차피 시간 지나면 다 잊혀질 고민들 시차!",
+    "description": "홍대 밤거리를 걷는 듯 낭만적인 그레이 비트와 우원재의 몽환적 플로우 🌃"
   },
   {
     "title": "FIANCÉ",
@@ -995,7 +1016,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "GaHyQtdhKtk",
-    "lyrics": "아낙네야 어디 있니 내 사랑아 / 꽃잎처럼 흩날리는 널 찾아 헤매네"
+    "lyrics": "아낙네야 어디 있니 내 사랑아 / 꽃잎처럼 흩날리는 널 찾아 헤매네",
+    "description": "트로트 명곡 '소양강 처녀'를 샘플링한 독창적이고 섹시한 동양풍 힙합 💃"
   },
   {
     "title": "Fear (feat. TAEYANG)",
@@ -1005,7 +1027,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "D3-KqKaoI1E",
-    "lyrics": "멈추지 마라, 겁내지 마라 / 어둠을 뚫고 지나가면 눈부신 아침이 와!"
+    "lyrics": "멈추지 마라, 겁내지 마라 / 어둠을 뚫고 지나가면 눈부신 아침이 와!",
+    "description": "태양의 소울 보컬과 송민호의 진솔한 고백이 눈물샘을 자극하는 명곡 🕯️"
   },
   {
     "title": "YGGR#Hip Hop",
@@ -1015,7 +1038,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "T83vXi-9lO4",
-    "lyrics": "너와 나의 연결고리! 이건 우리 안의 소리! / 매일 밤새워 비트 위에 외쳐 YGGR!"
+    "lyrics": "너와 나의 연결고리! 이건 우리 안의 소리! / 매일 밤새워 비트 위에 외쳐 YGGR!",
+    "description": "바비가 쇼미3를 우승으로 이끈 역사상 가장 미친 에너지의 락 힙합 앤섬 ⛓️"
   },
   {
     "title": "Boogie On & On (2017 Remastered Version)",
@@ -1025,7 +1049,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "xcKl3QDh6b0",
-    "lyrics": "오늘 밤은 Boogie on & on! / 멈추지 말고 리듬에 몸을 맡겨 Boogie!"
+    "lyrics": "오늘 밤은 Boogie on & on! / 멈추지 말고 리듬에 몸을 맡겨 Boogie!",
+    "description": "한국 힙합 역사상 가장 세련된 클럽 그루브! 몸이 저절로 흔들리는 트랙 🪩"
   },
   {
     "title": "Break",
@@ -1035,7 +1060,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "tqOWiKwr25c",
-    "lyrics": "난 깨부수고 싶어 Break! / 뻔한 일상을 다 부숴버려!"
+    "lyrics": "난 깨부수고 싶어 Break! / 뻔한 일상을 다 부숴버려!",
+    "description": "답답한 세상 틀을 다 부숴버리고 싶을 때 소리치며 스트레스 푸는 트랙 🔨"
   },
   {
     "title": "Ba$Tard (feat. JUSTHIS)",
@@ -1045,7 +1071,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "DZ1vs01YYmU",
-    "lyrics": "마이크 잡고 뱉어내는 랩 폭탄 / 현실을 똑바로 봐!"
+    "lyrics": "마이크 잡고 뱉어내는 랩 폭탄 / 현실을 똑바로 봐!",
+    "description": "저스디스의 미친 속사포 래핑이 폭풍처럼 몰아치는 하드코어 힙합 🌪️"
   },
   {
     "title": "Good Day (Prod. CODE KUNST) [feat. Paloalto]",
@@ -1055,7 +1082,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "G9crpffgwx0",
-    "lyrics": "오늘은 Good Day! 기분 좋은 날 / 모든 걱정 근심 다 날려버려 Good Day!"
+    "lyrics": "오늘은 Good Day! 기분 좋은 날 / 모든 걱정 근심 다 날려버려 Good Day!",
+    "description": "음원 차트를 올킬했던 쇼미777 팀 코드쿤스트의 세상에서 가장 기분 좋은 비트 ☀️"
   },
   {
     "title": "Beyond Love (feat. 10cm)",
@@ -1065,7 +1093,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "iZEXqZoIK_Q",
-    "lyrics": "정이라고 하자 사랑이라 부르기엔 / 너무 아프고 쓰라린 기억들"
+    "lyrics": "정이라고 하자 사랑이라 부르기엔 / 너무 아프고 쓰라린 기억들",
+    "description": "서동현과 십센치의 환상 콜라보! 레트로 감성의 통통 튀는 짝사랑 노래 💌"
   },
   {
     "title": "Seethru (feat. Zion.T & Gaeko)",
@@ -1075,7 +1104,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "gz0o5HLbtOw",
-    "lyrics": "속이 훤히 다 보여 씨스루 / 네 마음을 감추지 마 Seethru!"
+    "lyrics": "속이 훤히 다 보여 씨스루 / 네 마음을 감추지 마 Seethru!",
+    "description": "자이언티와 개코가 완성한 한국 알앤비 훵크의 영원한 레전드 🕶️"
   },
   {
     "title": "Johnny (feat. Dynamicduo)",
@@ -1085,7 +1115,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "YE9KtT6pgcE",
-    "lyrics": "쟈니 어디 갔니 전화 좀 받아봐 / 외로운 밤 나 혼자 술잔을 기울이네"
+    "lyrics": "쟈니 어디 갔니 전화 좀 받아봐 / 외로운 밤 나 혼자 술잔을 기울이네",
+    "description": "밤늦게 친구 쟈니를 찾는 현실감 넘치는 술자리 에피소드 힙합 🍺"
   },
   {
     "title": "Yanghwa BRDG",
@@ -1095,7 +1126,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "vfDb8uTp2DU",
-    "lyrics": "행복하자 우리 행복하자 / 아프지 말고 아프지 말고 양화대교 위에서"
+    "lyrics": "행복하자 우리 행복하자 / 아프지 말고 아프지 말고 양화대교 위에서",
+    "description": "택시 운전사 아버지와의 기억을 담아 온 국민을 울린 따뜻한 가족 찬가 🌉"
   },
   {
     "title": "Don't Know You",
@@ -1105,7 +1137,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "ye_XKW3b4Tw",
-    "lyrics": "널 너무 모르고 네 맘도 모르고 / 바보처럼 혼자서만 좋아했었나 봐"
+    "lyrics": "널 너무 모르고 네 맘도 모르고 / 바보처럼 혼자서만 좋아했었나 봐",
+    "description": "이별 후 뒤늦은 후회를 감각적이고 세련된 비트에 담아낸 헤이즈의 대표곡 🌧️"
   },
   {
     "title": "Oasis (feat. ZICO)",
@@ -1115,7 +1148,8 @@
     "mood": "normal",
     "genre": "HIPHOP",
     "youtubeId": "sQqixzNiMS8",
-    "lyrics": "넌 내 삶의 오아시스 / 메마른 사막에 단비처럼 내게 다가와 Oasis!"
+    "lyrics": "넌 내 삶의 오아시스 / 메마른 사막에 단비처럼 내게 다가와 Oasis!",
+    "description": "여름밤 수영장에 누워있는 듯 시원하고 감각적인 크러쉬의 대표 R&B 🏝️"
   },
   {
     "title": "Rush Hour (Feat. j-hope of BTS)",
@@ -1125,7 +1159,8 @@
     "mood": "high",
     "genre": "HIPHOP",
     "youtubeId": "stibNqDOo1g",
-    "lyrics": "This is Rush Hour! 길을 비켜라 / 오늘 밤 우리가 거리를 점령한다 Rush!"
+    "lyrics": "This is Rush Hour! 길을 비켜라 / 오늘 밤 우리가 거리를 점령한다 Rush!",
+    "description": "제이홉과 함께 펑키한 브라스 위에서 퇴근길 러시아워를 축제로 만든 곡 🎺"
   },
   {
     "title": "Don’t Forget (feat. TAEYEON)",
@@ -1135,7 +1170,8 @@
     "mood": "chill",
     "genre": "HIPHOP",
     "youtubeId": "ZOkac5Xgu1Q",
-    "lyrics": "잊어버리지 마 잃어버리지 마 / 찬란했던 우리 둘만의 기억들을"
+    "lyrics": "잊어버리지 마 잃어버리지 마 / 찬란했던 우리 둘만의 기억들을",
+    "description": "태연과의 감미로운 하모니로 아련한 추억을 영원히 기억하게 만드는 곡 ❄️"
   },
   {
     "title": "SICKO MODE",
@@ -1145,7 +1181,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "wCMGGtfHBlk",
-    "lyrics": "Sun is down, freezin' cold / Out like a light, ayy, yeah!"
+    "lyrics": "Sun is down, freezin' cold / Out like a light, ayy, yeah!",
+    "description": "비트 스위치 3번으로 전 세계 클럽을 뒤집어놓은 트래비스 스캇의 마스터피스 🎢"
   },
   {
     "title": "goosebumps",
@@ -1155,7 +1192,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "kCId3jwFjsY",
-    "lyrics": "I get those goosebumps every time, yeah / You ease my mind!"
+    "lyrics": "I get those goosebumps every time, yeah / You ease my mind!",
+    "description": "어두운 클럽 조명 아래 몸을 맡기게 만드는 묵직한 베이스의 극치 🦇"
   },
   {
     "title": "HUMBLE.",
@@ -1165,7 +1203,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "FEinKkkEvSw",
-    "lyrics": "Bitch, be humble! Sit down! / Be humble! Sit down!"
+    "lyrics": "Bitch, be humble! Sit down! / Be humble! Sit down!",
+    "description": "그래미를 휩쓴 날카로운 피아노 리프와 켄드릭 라마의 카리스마 랩 🎹"
   },
   {
     "title": "INDUSTRY BABY",
@@ -1175,7 +1214,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "jYZHD3QJrw4",
-    "lyrics": "I told you long ago on the road / I got what they waitin' for!"
+    "lyrics": "I told you long ago on the road / I got what they waitin' for!",
+    "description": "화려한 호른 팡파르와 함께 빌보드를 집어삼킨 초강력 힙합 앤섬 🎺"
   },
   {
     "title": "I Like It",
@@ -1185,7 +1225,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "xTlNMmZKwpA",
-    "lyrics": "I like it like that! / I like dollars, I like diamonds, I like stunting!"
+    "lyrics": "I like it like that! / I like dollars, I like diamonds, I like stunting!",
+    "description": "신나는 라틴 살사 리듬과 카디비의 불꽃 래핑이 만난 흥 폭발 라틴 트랩 💃"
   },
   {
     "title": "Without Me",
@@ -1195,7 +1236,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "Ha-NRBE0HWo",
-    "lyrics": "Guess who's back, back again? / Shady's back, tell a friend!"
+    "lyrics": "Guess who's back, back again? / Shady's back, tell a friend!",
+    "description": "'Guess who's back' 전설의 에미넴표 속사포 익살 래핑의 교과서 🎭"
   },
   {
     "title": "Lovin On Me",
@@ -1205,7 +1247,8 @@
     "mood": "normal",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "YRL8jVfVwgE",
-    "lyrics": "I don't need no therapist / Just need you lovin' on me!"
+    "lyrics": "I don't need no therapist / Just need you lovin' on me!",
+    "description": "숏폼 틱톡 댄스 챌린지를 강타한 중독적인 바운스의 트렌디 힙합 🕺"
   },
   {
     "title": "Party Rock Anthem (feat. Lauren Bennett & GoonRock)",
@@ -1215,7 +1258,8 @@
     "mood": "high",
     "genre": "GLOBAL HIPHOP",
     "youtubeId": "GvuSYrQGLNE",
-    "lyrics": "Party rock is in the house tonight! / Everybody just have a good time! Everyday I'm shufflin'!"
+    "lyrics": "Party rock is in the house tonight! / Everybody just have a good time! Everyday I'm shufflin'!",
+    "description": "셔플 댄스 열풍을 일으킨 파티 음악 역사상 최고의 일렉트로 팝 앤섬 🪩"
   },
   {
     "title": "Spicy",
@@ -1225,7 +1269,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "1kfmWl3o8TE",
-    "lyrics": "Too spicy for your heart, ring the fire alarm! / 멈출 수 없는 짜릿함 Spicy!"
+    "lyrics": "Too spicy for your heart, ring the fire alarm! / 멈출 수 없는 짜릿함 Spicy!",
+    "description": "하이틴 퀸카의 매운맛 에너지! 여름 파티 텐션 수직 상승 치트키 🌶️"
   },
   {
     "title": "Eve, Psyche & The Bluebeard’s wife",
@@ -1235,7 +1280,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "AIDKbriJcq0",
-    "lyrics": "I'm a mess in distress / 벗어나버려 금지된 선을 넘어 Boom boom boom!"
+    "lyrics": "I'm a mess in distress / 벗어나버려 금지된 선을 넘어 Boom boom boom!",
+    "description": "'Boom boom boom' 심장 때리는 저지 비트에 몸이 먼저 반응하는 클럽 트랙 💃"
   },
   {
     "title": "ANTIFRAGILE",
@@ -1245,7 +1291,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "ZNEuWldWPD4",
-    "lyrics": "Anti-ti-ti-ti-fragile, fragile! / 더 부딪혀봐 날 더 단단하게 만들어 ANTIFRAGILE!"
+    "lyrics": "Anti-ti-ti-ti-fragile, fragile! / 더 부딪혀봐 날 더 단단하게 만들어 ANTIFRAGILE!",
+    "description": "시련이 올수록 더 단단해지는 걸크러시 라틴 리듬의 정점 💎"
   },
   {
     "title": "ETA",
@@ -1255,7 +1302,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "DfX4F5a6JE8",
-    "lyrics": "낭비하지 마 네 시간은 은행 / 내 말 맞지? 벌써 출발했어 ETA!"
+    "lyrics": "낭비하지 마 네 시간은 은행 / 내 말 맞지? 벌써 출발했어 ETA!",
+    "description": "스피커 찢는 브라스 비트! '내 말 맞지?' 친구한테 전화 걸게 만드는 곡 🏎️"
   },
   {
     "title": "Hype Boy",
@@ -1265,7 +1313,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "Pp07icnTPGE",
-    "lyrics": "Cause I-I-I know what you like boy! / You're my chemical Hype Boy!"
+    "lyrics": "Cause I-I-I know what you like boy! / You're my chemical Hype Boy!",
+    "description": "내적 댄스 유발 1위! 전 세계를 사로잡은 Y2K 청량 팝 비트 🫧"
   },
   {
     "title": "Super Shy",
@@ -1275,7 +1324,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "NgEaOJ7lRWY",
-    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!"
+    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!",
+    "description": "저지 클럽 비트 위로 귀엽게 살랑거리는 대국민 플래시몹 댄스 🙈"
   },
   {
     "title": "Super",
@@ -1285,7 +1335,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "tFPbzfU5XL4",
-    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!"
+    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!",
+    "description": "K-POP 장르의 매력을 제대로 느낄 수 있는 신나는 사운드의 명곡 🎶"
   },
   {
     "title": "God of Music",
@@ -1295,7 +1346,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "t6EiHSXX3Qo",
-    "lyrics": "음악의 신이 있다면 감사를 전해 / 모두 함께 쿵치팍치!"
+    "lyrics": "음악의 신이 있다면 감사를 전해 / 모두 함께 쿵치팍치!",
+    "description": "K-POP 장르의 매력을 제대로 느낄 수 있는 신나는 사운드의 명곡 🎶"
   },
   {
     "title": "Fighting (feat. Lee Young Ji)",
@@ -1305,7 +1357,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "Rs38yyxPjBY",
-    "lyrics": "파이팅 해야지! 힘내야지! / 지치고 힘들 땐 외쳐봐 거침없이 파이팅!"
+    "lyrics": "파이팅 해야지! 힘내야지! / 지치고 힘들 땐 외쳐봐 거침없이 파이팅!",
+    "description": "월요병도 날려버릴 무한 긍정 비타민! 이영지의 찰진 랩이 더해진 파이팅 찬가 ⚡️"
   },
   {
     "title": "BANG BANG BANG",
@@ -1315,7 +1368,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "CyrGxvdbR5c",
-    "lyrics": "빵야 빵야 빵야! 뱅뱅뱅 뱅뱅뱅! / 다 같이 흔들어 빵야 빵야 빵야!"
+    "lyrics": "빵야 빵야 빵야! 뱅뱅뱅 뱅뱅뱅! / 다 같이 흔들어 빵야 빵야 빵야!",
+    "description": "테이블 뒤집어지는 파티 앤섬! 총 쏘는 안무 안 하면 벌주 마셔야 함 🔫"
   },
   {
     "title": "I Am the Best",
@@ -1325,7 +1379,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "rrZxGvUSeAE",
-    "lyrics": "내가 제일 잘 나가! / Bam Ratatata Tatatatata! 내가 제일 잘 나가!"
+    "lyrics": "내가 제일 잘 나가! / Bam Ratatata Tatatatata! 내가 제일 잘 나가!",
+    "description": "걸크러시의 원조! 비트 터지는 순간 자존감 최고조로 치솟는 클럽 앤섬 👑"
   },
   {
     "title": "Queencard",
@@ -1335,7 +1390,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "VOcb6ZHxSjc",
-    "lyrics": "I'm a 퀸카! I'm a 퀸카! / I'm hot, my boob and booty is hot! 퀸카!"
+    "lyrics": "I'm a 퀸카! I'm a 퀸카! / I'm hot, my boob and booty is hot! 퀸카!",
+    "description": "'I'm a 퀸카!' 외치며 파티의 주인공이 되는 자존감 폭발 메가히트 👸"
   },
   {
     "title": "Klaxon",
@@ -1345,7 +1401,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "fAdA8rW_UuY",
-    "lyrics": "Honk honk! 클락션을 울려라 / 온 세상을 깨우는 Klaxon 소리!"
+    "lyrics": "Honk honk! 클락션을 울려라 / 온 세상을 깨우는 Klaxon 소리!",
+    "description": "한여름 해변 드라이브를 떠난 듯 시원하고 유쾌한 팝 댄스 트랙 🚙"
   },
   {
     "title": "I AM",
@@ -1355,7 +1412,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "uu5DM6Dz6Sg",
-    "lyrics": "That's my life is 아름다운 갤럭시 / Be a writer, 잔잔한 파도에 부서지지 마!"
+    "lyrics": "That's my life is 아름다운 갤럭시 / Be a writer, 잔잔한 파도에 부서지지 마!",
+    "description": "자존감 충전 1000%! 벅차오르는 후렴구에서 당당하게 잔을 들게 되는 곡 👑"
   },
   {
     "title": "After LIKE",
@@ -1365,7 +1423,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "4kwhRUHjWwE",
-    "lyrics": "What's after LIKE? / 감히 의심하지 마, 완벽한 너와 나의 After LIKE!"
+    "lyrics": "What's after LIKE? / 감히 의심하지 마, 완벽한 너와 나의 After LIKE!",
+    "description": "글로리아 게이너의 명곡 샘플링으로 전 세대를 사로잡은 디스코 팝 🪩"
   },
   {
     "title": "LOVE DIVE",
@@ -1375,7 +1434,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "qYh3NhMRDjY",
-    "lyrics": "Narcissistic, my god I love it / 용기 내 어서 뛰어들어 LOVE DIVE!"
+    "lyrics": "Narcissistic, my god I love it / 용기 내 어서 뛰어들어 LOVE DIVE!",
+    "description": "망설일 시간 없이 사랑에 퐁당 뛰어들게 만드는 매혹적인 나르시시즘 🏊"
   },
   {
     "title": "That That (prod.&feat. SUGA of BTS)",
@@ -1385,7 +1445,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "mNZZxJgJE84",
-    "lyrics": "That that, I like that! / 신나게 흔들어 24시간 파티 That that, I like that!"
+    "lyrics": "That that, I like that! / 신나게 흔들어 24시간 파티 That that, I like that!",
+    "description": "싸이와 슈가의 폭발적 시너지! 24시간 쉬지 않고 뛰어노는 축제 앤섬 🤠"
   },
   {
     "title": "Gangnam Style",
@@ -1395,7 +1456,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "y5ggaJEyhzU",
-    "lyrics": "오빤 강남스타일! Eh~ Sexy Lady! / 오오오오 오빤 강남스타일!"
+    "lyrics": "오빤 강남스타일! Eh~ Sexy Lady! / 오오오오 오빤 강남스타일!",
+    "description": "유튜브 최초 10억 뷰 신화! 전 세계를 뒤흔든 불멸의 말춤 비트 🐎"
   },
   {
     "title": "Celebrity",
@@ -1405,7 +1467,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "B9mpDAJOPac",
-    "lyrics": "I wanna be a celebrity! / Look at me, I'm on TV!"
+    "lyrics": "I wanna be a celebrity! / Look at me, I'm on TV!",
+    "description": "유쾌하고 위트 넘치는 컨트리 기타 리듬이 돋보이는 명곡 🤠"
   },
   {
     "title": "Cheer Up",
@@ -1415,7 +1478,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "gYGukeZIhxg",
-    "lyrics": "CHEER UP BABY! CHEER UP BABY! 좀 더 힘을 내! / 여자가 쉽게 맘을 주면 안 돼!"
+    "lyrics": "CHEER UP BABY! CHEER UP BABY! 좀 더 힘을 내! / 여자가 쉽게 맘을 주면 안 돼!",
+    "description": "샤샤샤 열풍의 주인공! 귀여움과 활력으로 무장한 트와이스의 시그니처 🍹"
   },
   {
     "title": "IDOL",
@@ -1425,7 +1489,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "vgJeQvGYYpk",
-    "lyrics": "You can't stop me lovin' myself! / 얼쑤 좋다 지화자 좋다 얼씨구!"
+    "lyrics": "You can't stop me lovin' myself! / 얼쑤 좋다 지화자 좋다 얼씨구!",
+    "description": "한국 전통 사물놀이 비트와 아프리칸 리듬이 결합된 폭발적인 흥 파티 🪘"
   },
   {
     "title": "Dynamite",
@@ -1435,7 +1500,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "NRm91fKbApQ",
-    "lyrics": "Cause I-I-I'm in the stars tonight / So watch me bring the fire and set the night alight!"
+    "lyrics": "Cause I-I-I'm in the stars tonight / So watch me bring the fire and set the night alight!",
+    "description": "빌보드 핫100 1위! 전 세계를 춤추게 만든 경쾌한 디스코 팝의 마법 🧨"
   },
   {
     "title": "Get A Guitar",
@@ -1445,7 +1511,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "krlP8QK4uLY",
-    "lyrics": "Baby get a guitar! 멜로디에 몸을 맡겨 / 리듬 타고 흘러가는 우리 둘만의 바이브!"
+    "lyrics": "Baby get a guitar! 멜로디에 몸을 맡겨 / 리듬 타고 흘러가는 우리 둘만의 바이브!",
+    "description": "펑키한 기타 리프에 맞춰 저절로 발을 구르게 만드는 라이즈의 데뷔 대박곡 🎸"
   },
   {
     "title": "Time of Our Life",
@@ -1455,7 +1522,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "_pKSVstK1jc",
-    "lyrics": "아름다운 청춘의 한 장 함께 써내려 가자! / 너와의 모든 순간이 찬란할 수 있게!"
+    "lyrics": "아름다운 청춘의 한 장 함께 써내려 가자! / 너와의 모든 순간이 찬란할 수 있게!",
+    "description": "청춘 페스티벌 떼창 1순위! 가슴이 벅차오르는 청량 밴드 찬가 🎸"
   },
   {
     "title": "Welcome to the Show",
@@ -1465,7 +1533,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "JqBU5BvBle8",
-    "lyrics": "Welcome to the show! / 애써왔던 날들이 빛을 발하는 순간 / 내 모든 걸 다 걸고 널 향해 달려갈게!"
+    "lyrics": "Welcome to the show! / 애써왔던 날들이 빛을 발하는 순간 / 내 모든 걸 다 걸고 널 향해 달려갈게!",
+    "description": "인생이라는 무대를 향해 달리는 벅찬 에너지의 페스티벌 앤섬 🎪"
   },
   {
     "title": "Love Lee",
@@ -1475,7 +1544,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "EBcxZbSz-Z4",
-    "lyrics": "So Lovely day, Lovely day! / 너와 함께라면 매일이 사랑스러워 Love Lee!"
+    "lyrics": "So Lovely day, Lovely day! / 너와 함께라면 매일이 사랑스러워 Love Lee!",
+    "description": "듣기만 해도 기분 좋아지는 악뮤 특유의 깜찍하고 러블리한 댄스곡 💖"
   },
   {
     "title": "Off My Face",
@@ -1485,7 +1555,8 @@
     "mood": "chill",
     "genre": "POP",
     "youtubeId": "0810ztn8Pj0",
-    "lyrics": "'Cause I'm off my face, in love with you / I'm out my head, so into you!"
+    "lyrics": "'Cause I'm off my face, in love with you / I'm out my head, so into you!",
+    "description": "어쿠스틱 기타와 저스틴 비버의 달콤한 음색이 어우러진 감미로운 고백 🎸"
   },
   {
     "title": "Through the Night",
@@ -1495,7 +1566,8 @@
     "mood": "chill",
     "genre": "K-POP",
     "youtubeId": "HEYOsR1DlWE",
-    "lyrics": "이 밤 그날의 반딧불을 당신의 창 가까이 보낼게요 / 좋은 꿈 이길 바라요"
+    "lyrics": "이 밤 그날의 반딧불을 당신의 창 가까이 보낼게요 / 좋은 꿈 이길 바라요",
+    "description": "K-POP 장르의 매력을 제대로 느낄 수 있는 편안한 사운드의 명곡 🎶"
   },
   {
     "title": "For Lovers Who Hesitate",
@@ -1505,7 +1577,8 @@
     "mood": "chill",
     "genre": "INDIE",
     "youtubeId": "Pez5xqRL-Qc",
-    "lyrics": "나는 읽기 쉬운 마음이야 / 당신도 스윽 훑고 가셔요"
+    "lyrics": "나는 읽기 쉬운 마음이야 / 당신도 스윽 훑고 가셔요",
+    "description": "INDIE 장르의 매력을 제대로 느낄 수 있는 편안한 사운드의 명곡 🎶"
   },
   {
     "title": "Event Horizon",
@@ -1515,7 +1588,8 @@
     "mood": "chill",
     "genre": "K-POP",
     "youtubeId": "Py5pFJAzg5c",
-    "lyrics": "저기 사라진 별의 자리 / 아스라이 하얀 빛 한동안은 꺼내 볼 수 있을 거야"
+    "lyrics": "저기 사라진 별의 자리 / 아스라이 하얀 빛 한동안은 꺼내 볼 수 있을 거야",
+    "description": "2022년 대학가를 휩쓴 기적의 역주행! 우주적 스케일의 벅찬 락 앤섬 🌌"
   },
   {
     "title": "Every Day, Every Moment",
@@ -1525,7 +1599,8 @@
     "mood": "chill",
     "genre": "K-POP",
     "youtubeId": "nq0BYGyH2Do",
-    "lyrics": "모든 날, 모든 순간 함께해 / 불안했던 내 맘에 포근한 안식이 되어준 너"
+    "lyrics": "모든 날, 모든 순간 함께해 / 불안했던 내 맘에 포근한 안식이 되어준 너",
+    "description": "축가 1순위! 진심 어린 사랑의 서약을 가장 담백하게 전하는 명품 발라드 💍"
   },
   {
     "title": "What The Spring??",
@@ -1535,7 +1610,8 @@
     "mood": "chill",
     "genre": "INDIE",
     "youtubeId": "mR0SPQ16Bko",
-    "lyrics": "봄이 그렇게도 좋냐 멍청이들아! / 벚꽃이 그렇게도 예쁘디 바보들아! 결국 다 떨어져라 몽땅 망해라!"
+    "lyrics": "봄이 그렇게도 좋냐 멍청이들아! / 벚꽃이 그렇게도 예쁘디 바보들아! 결국 다 떨어져라 몽땅 망해라!",
+    "description": "솔로들의 절대적 지지를 받는 통쾌하고 유쾌한 봄철 커플 저격송 🌸"
   },
   {
     "title": "Paris in the Rain",
@@ -1545,7 +1621,8 @@
     "mood": "chill",
     "genre": "POP",
     "youtubeId": "DqQen7-byRg",
-    "lyrics": "Anywhere with you feels right / Anywhere with you feels like Paris in the rain"
+    "lyrics": "Anywhere with you feels right / Anywhere with you feels like Paris in the rain",
+    "description": "비 내리는 밤 창밖을 보며 와인 한잔하기 가장 완벽한 로맨틱 팝 🍷"
   },
   {
     "title": "한 페이지가 될 수 있게",
@@ -1555,7 +1632,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "_pKSVstK1jc",
-    "lyrics": "아름다운 청춘의 한 장 함께 써내려 가자! / 너와의 모든 순간이 찬란할 수 있게!"
+    "lyrics": "아름다운 청춘의 한 장 함께 써내려 가자! / 너와의 모든 순간이 찬란할 수 있게!",
+    "description": "청춘 페스티벌 떼창 1순위! 가슴이 벅차오르는 청량 밴드 찬가 🎸"
   },
   {
     "title": "예뻤어",
@@ -1565,7 +1643,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "Ejc__vhP2U8",
-    "lyrics": "예뻤어 날 바라봐 주던 그 눈빛 / 날 불러주던 그 목소리 다 다 / 그 모든 게 내겐 예뻤어"
+    "lyrics": "예뻤어 날 바라봐 주던 그 눈빛 / 날 불러주던 그 목소리 다 다 / 그 모든 게 내겐 예뻤어",
+    "description": "모든 전 연인을 소환하는 레전드 이별 감성 밴드 명곡 ☕️"
   },
   {
     "title": "녹아내려요",
@@ -1575,7 +1654,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "1MhXupIS4G8",
-    "lyrics": "차가웠던 내 맘이 다 녹아내려요 / 그대가 내게 준 따스한 온기에"
+    "lyrics": "차가웠던 내 맘이 다 녹아내려요 / 그대가 내게 준 따스한 온기에",
+    "description": "2024 음원 차트 1위 올킬! 추운 마음도 사르르 녹이는 달콤한 멜로디 🍦"
   },
   {
     "title": "HAPPY",
@@ -1585,7 +1665,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "2dFwndi4ung",
-    "lyrics": "May I be happy? / 매일 밤 기도해 / 행복해지고 싶어, 그저 그것뿐인데"
+    "lyrics": "May I be happy? / 매일 밤 기도해 / 행복해지고 싶어, 그저 그것뿐인데",
+    "description": "신나는 멜로디 뒤에 숨겨진 솔직한 위로! 다 같이 따라 부르게 되는 곡 🎈"
   },
   {
     "title": "Shoot Me",
@@ -1595,7 +1676,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "LpojDOyt6Og",
-    "lyrics": "I'm okay, so if you wanna hurt me / Baby just hit me, hit me / 망설이지 말고 Shoot me!"
+    "lyrics": "I'm okay, so if you wanna hurt me / Baby just hit me, hit me / 망설이지 말고 Shoot me!",
+    "description": "드럼 비트부터 심장 저격! 강렬한 락 사운드로 텐션 끌어올리는 트랙 🔫"
   },
   {
     "title": "Congratulations",
@@ -1605,7 +1687,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "uTbZElDWFgg",
-    "lyrics": "Congratulations! 넌 참 대단해 / 어떻게 날 두고 그렇게 웃을 수가 있어?"
+    "lyrics": "Congratulations! 넌 참 대단해 / 어떻게 날 두고 그렇게 웃을 수가 있어?",
+    "description": "반어법 가사의 정점! 전 애인에게 날리는 통쾌하고 세련된 밴드 사운드 👏"
   },
   {
     "title": "고민중독",
@@ -1615,7 +1698,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "hFTs6HbtxbE",
-    "lyrics": "One! Two! Three! / 어쩌다 마주친 그 눈빛에 / 내 맘은 이미 고민중독!"
+    "lyrics": "One! Two! Three! / 어쩌다 마주친 그 눈빛에 / 내 맘은 이미 고민중독!",
+    "description": "2024 대학 축제를 뒤흔든 최고 대세 밴드의 폭풍 질주 비트 ⚡️"
   },
   {
     "title": "Discord",
@@ -1625,7 +1709,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "m_1swoaL1SA",
-    "lyrics": "비뚤어진 음표처럼 엉망이지만 / 내 멋대로 연주할래 Discord!"
+    "lyrics": "비뚤어진 음표처럼 엉망이지만 / 내 멋대로 연주할래 Discord!",
+    "description": "서브컬처 감성과 파워풀한 팝펑크 사운드가 폭발하는 데뷔 메가히트곡 🎮"
   },
   {
     "title": "내 이름 맑음",
@@ -1635,7 +1720,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "U7c4y4qvBGk",
-    "lyrics": "비가 내리던 날들은 지나가고 / 내 이름처럼 오늘 하루 맑음!"
+    "lyrics": "비가 내리던 날들은 지나가고 / 내 이름처럼 오늘 하루 맑음!",
+    "description": "비 온 뒤 맑게 갠 하늘처럼 청량하고 사랑스러운 질주형 밴드송 ☀️"
   },
   {
     "title": "가짜 아이돌",
@@ -1645,7 +1731,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "EtrXkAHtU1c",
-    "lyrics": "진짜가 아니어도 좋아 / 너를 위해 노래하는 가짜 아이돌!"
+    "lyrics": "진짜가 아니어도 좋아 / 너를 위해 노래하는 가짜 아이돌!",
+    "description": "진짜를 넘어선 열정과 당당한 매력으로 무대를 뒤흔드는 락 트랙 💫"
   },
   {
     "title": "주저하는 연인들을 위해",
@@ -1655,7 +1742,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "_C1aQZNUoaY",
-    "lyrics": "나는 읽기 쉬운 마음이야 / 당신도 스윽 훑고 가셔요"
+    "lyrics": "나는 읽기 쉬운 마음이야 / 당신도 스윽 훑고 가셔요",
+    "description": "술자리 분위기를 순식간에 낭만적인 밤공기로 물들이는 서정적 발라드 🌙"
   },
   {
     "title": "뜨거운 여름밤은 가고 남은 건 볼품없지만",
@@ -1665,7 +1753,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "J7klzJ9auE0",
-    "lyrics": "뜨거운 여름밤은 가고 남은 건 볼품없지만 / 또다시 찾아오는 계절을 기다려"
+    "lyrics": "뜨거운 여름밤은 가고 남은 건 볼품없지만 / 또다시 찾아오는 계절을 기다려",
+    "description": "청춘의 뜨거운 기억을 회상하게 만드는 아련하고 웅장한 레트로 록 🍷"
   },
   {
     "title": "She",
@@ -1675,7 +1764,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "kzV9JYmQGWE",
-    "lyrics": "She, she is my heart / 어둠을 밝혀주는 그녀의 미소"
+    "lyrics": "She, she is my heart / 어둠을 밝혀주는 그녀의 미소",
+    "description": "어쿠스틱 기타와 부드러운 보컬이 마음을 따스하게 안아주는 힐링 트랙 🕯️"
   },
   {
     "title": "초록을거머쥔우리는",
@@ -1685,7 +1775,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "6WxX9QMSzpY",
-    "lyrics": "초록을 거머쥔 우리는 / 눈이 부시게 푸르른 날들을 걸어가요"
+    "lyrics": "초록을 거머쥔 우리는 / 눈이 부시게 푸르른 날들을 걸어가요",
+    "description": "초여름 숲속 바람처럼 상쾌하고 푸르른 감성의 어쿠스틱 팝 🌿"
   },
   {
     "title": "NO PAIN",
@@ -1695,7 +1786,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "ocfjbyD_37U",
-    "lyrics": "No pain, no gain! / 타오르는 불꽃처럼 타올라라!"
+    "lyrics": "No pain, no gain! / 타오르는 불꽃처럼 타올라라!",
+    "description": "한국 인디씬 원탑! 몽환적이면서 폭발적인 신인류 사이키델릭 사운드 🚀"
   },
   {
     "title": "Tik Tak Tok (feat. So!YoON!)",
@@ -1705,7 +1797,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "VpZjRvy8AR8",
-    "lyrics": "Tik Tak Tok! 째깍거리는 시계추를 멈춰 / 오늘 밤 우린 끝까지 달려!"
+    "lyrics": "Tik Tak Tok! 째깍거리는 시계추를 멈춰 / 오늘 밤 우린 끝까지 달려!",
+    "description": "황소윤과의 역대급 콜라보! 심장을 쥐락펴락하는 긴장감 넘치는 락 그루브 ⏳"
   },
   {
     "title": "APEX",
@@ -1715,7 +1808,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "ljz3FGYujFI",
-    "lyrics": "더 높은 곳을 향해 날아올라 / We reach the APEX!"
+    "lyrics": "더 높은 곳을 향해 날아올라 / We reach the APEX!",
+    "description": "더 높은 정점을 향해 거침없이 질주하는 압도적 스케일의 사운드스케이프 🏔️"
   },
   {
     "title": "Desert Eagle",
@@ -1725,7 +1819,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "IWYft_hOIgo",
-    "lyrics": "사막을 가르는 총성처럼 / 거침없이 너를 겨눠 Desert Eagle"
+    "lyrics": "사막을 가르는 총성처럼 / 거침없이 너를 겨눠 Desert Eagle",
+    "description": "황량한 사막을 가르는 날카롭고 세련된 기타 톤이 매력적인 트랙 🦅"
   },
   {
     "title": "낭만고양이",
@@ -1735,7 +1830,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "Nh5Ld4EpXJs",
-    "lyrics": "나는 낭만 고양이~ / 슬픈 도시를 비춰 춤추는 작은 별빛!"
+    "lyrics": "나는 낭만 고양이~ / 슬픈 도시를 비춰 춤추는 작은 별빛!",
+    "description": "전주 터지자마자 목청 터뜨리며 기립하는 락페스티벌 불멸의 치트키 🐱"
   },
   {
     "title": "오리 날다",
@@ -1745,7 +1841,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "ivbdRCDCOig",
-    "lyrics": "날아올라 저 하늘 멋진 달이 될래요 / 깊은 밤 하늘에 빛이 될래요!"
+    "lyrics": "날아올라 저 하늘 멋진 달이 될래요 / 깊은 밤 하늘에 빛이 될래요!",
+    "description": "답답한 속을 뻥 뚫어주는 조유진의 사이다 고음과 희망찬 멜로디 🦆"
   },
   {
     "title": "가시",
@@ -1755,7 +1852,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "2I75ion7CAc",
-    "lyrics": "가시처럼 깊게 박힌 기억은~ / 지워지지 않아! 그댄 내 전부였죠~"
+    "lyrics": "가시처럼 깊게 박힌 기억은~ / 지워지지 않아! 그댄 내 전부였죠~",
+    "description": "남성 노래방 20년 부동의 1위! 쌈자신에 빙의해 소리 지르는 불멸의 락발라드 🎤"
   },
   {
     "title": "나에게로 떠나는 여행",
@@ -1765,7 +1863,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "0UvmevVcKyw",
-    "lyrics": "저 푸른 바다 끝까지 달리는 거야~ / 먼 훗날 우리 추억할 수 있게!"
+    "lyrics": "저 푸른 바다 끝까지 달리는 거야~ / 먼 훗날 우리 추억할 수 있게!",
+    "description": "소주 마시다 동해 바다로 순간 이동하는 기립 박수 떼창 앤섬 🌊"
   },
   {
     "title": "남자를 몰라",
@@ -1775,7 +1874,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "jjuB0S2460Q",
-    "lyrics": "널 지킬 쌈자를 몰라~ / 남자를 몰라! 널 사랑하는 날 왜 몰라!"
+    "lyrics": "널 지킬 쌈자를 몰라~ / 남자를 몰라! 널 사랑하는 날 왜 몰라!",
+    "description": "전설의 '쌈자를 몰라' 밈을 탄생시킨 민경훈표 애절 락발라드의 정점 💔"
   },
   {
     "title": "겁쟁이",
@@ -1785,7 +1885,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "G7eLG4Tnc9c",
-    "lyrics": "날 사랑해선 안 돼요~ / 난 겁쟁이니까! 그대 맘 아프게 할 테니까"
+    "lyrics": "날 사랑해선 안 돼요~ / 난 겁쟁이니까! 그대 맘 아프게 할 테니까",
+    "description": "사랑 앞에 머뭇거렸던 그 시절 감성을 건드리는 가슴 찡한 명곡 💧"
   },
   {
     "title": "나는 나비",
@@ -1795,7 +1896,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "03tKh-FhkfY",
-    "lyrics": "날개를 활짝 펴고 세상을 자유롭게 날거야! / 노래하며 춤추는 나는 아름다운 나비!"
+    "lyrics": "날개를 활짝 펴고 세상을 자유롭게 날거야! / 노래하며 춤추는 나는 아름다운 나비!",
+    "description": "한국인이라면 누구나 가슴이 웅장해지는 전율의 국민 락 찬가 🦋"
   },
   {
     "title": "흰수염고래",
@@ -1805,7 +1907,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "iD54IrEyiK8",
-    "lyrics": "너의 가는 길이 너무 지치고 힘들 때 / 거대한 파도를 가르는 흰수염고래처럼 헤엄쳐가!"
+    "lyrics": "너의 가는 길이 너무 지치고 힘들 때 / 거대한 파도를 가르는 흰수염고래처럼 헤엄쳐가!",
+    "description": "거친 파도를 헤쳐 나가는 고래처럼 삶에 위로와 용기를 주는 대곡 🐋"
   },
   {
     "title": "박하사탕",
@@ -1815,7 +1918,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "-85-sjG_BiQ",
-    "lyrics": "나 다시 돌아갈래! / 어릴 적 순수했던 그날의 내 모습으로!"
+    "lyrics": "나 다시 돌아갈래! / 어릴 적 순수했던 그날의 내 모습으로!",
+    "description": "영화의 한 장면처럼 과거의 순수했던 시절을 절규하듯 부르는 윤도현의 명곡 🍬"
   },
   {
     "title": "너를 보내고",
@@ -1825,7 +1929,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "ya24OGSfxfw",
-    "lyrics": "먼 산 언저리마다 너를 남기고 / 돌아서는 내게 시간은 멈추고"
+    "lyrics": "먼 산 언저리마다 너를 남기고 / 돌아서는 내게 시간은 멈추고",
+    "description": "통기타 하나로 술자리를 촉촉하게 적시는 한국 포크록의 불멸의 고전 🍂"
   },
   {
     "title": "말달리자",
@@ -1835,7 +1940,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "OHavQLOkxKE",
-    "lyrics": "말 달리자! 닥쳐! 닥쳐! 닥쳐! / 내 앞에 서지 마라! 말 달리자!"
+    "lyrics": "말 달리자! 닥쳐! 닥쳐! 닥쳐! / 내 앞에 서지 마라! 말 달리자!",
+    "description": "조선 펑크의 시초! 테이블 뒤집어질 때까지 머리 흔드는 폭주 비트 🐎"
   },
   {
     "title": "밤이 깊었네",
@@ -1845,7 +1951,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "IIzi_9yoras",
-    "lyrics": "밤이 깊었네 방황하며 춤을 추는 불빛들 / 이 밤에 취해 비틀거리는 나의 청춘아"
+    "lyrics": "밤이 깊었네 방황하며 춤을 추는 불빛들 / 이 밤에 취해 비틀거리는 나의 청춘아",
+    "description": "술자리 막바지에 서로 어깨동무하고 흔들거리며 부르는 취중 명곡 🌃"
   },
   {
     "title": "좋지 아니한가",
@@ -1855,7 +1962,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "FtCuU7WAIBI",
-    "lyrics": "사는 게 다 그렇지 않겠어? / 그래도 오늘 밤 웃을 수 있어 좋지 아니한가!"
+    "lyrics": "사는 게 다 그렇지 않겠어? / 그래도 오늘 밤 웃을 수 있어 좋지 아니한가!",
+    "description": "사는 게 팍팍해도 오늘 밤 웃을 수 있어 참 좋지 아니한가! 🍻"
   },
   {
     "title": "넌 내게 반했어",
@@ -1865,7 +1973,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "tslZnaOz0ZI",
-    "lyrics": "넌 내게 반했어! 뜨거운 내 눈빛에 / 넌 내게 반했어! 어쩔 수가 없어 넌 내게 반했어!"
+    "lyrics": "넌 내게 반했어! 뜨거운 내 눈빛에 / 넌 내게 반했어! 어쩔 수가 없어 넌 내게 반했어!",
+    "description": "심장 박동 180BPM! 맥주 캔 따면서 다 같이 외치는 흥 폭발 펑크락 💥"
   },
   {
     "title": "비와 당신",
@@ -1875,7 +1984,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "kLAII-REEwI",
-    "lyrics": "이젠 괜찮은데 사랑 따윈 저버렸는데 / 바보 같은 난 눈물이 날까"
+    "lyrics": "이젠 괜찮은데 사랑 따윈 저버렸는데 / 바보 같은 난 눈물이 날까",
+    "description": "영화 라디오스타의 명장면을 떠올리게 하는 거칠고 진솔한 락 발라드 🌧️"
   },
   {
     "title": "스물다섯, 스물하나",
@@ -1885,7 +1995,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "XVLF2e8lCHo",
-    "lyrics": "영원할 줄 알았던 지난날의 너와 나 / 그 찬란했던 스물다섯, 스물하나"
+    "lyrics": "영원할 줄 알았던 지난날의 너와 나 / 그 찬란했던 스물다섯, 스물하나",
+    "description": "술자리 분위기를 순식간에 아련한 청춘 영화로 만들어버리는 명작 🎞️"
   },
   {
     "title": "매직 카펫 라이드",
@@ -1895,7 +2006,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "pbYEkADd4Vc",
-    "lyrics": "이렇게 멋진 푸른 하늘 위로 / 날아라 매직 카펫 라이드!"
+    "lyrics": "이렇게 멋진 푸른 하늘 위로 / 날아라 매직 카펫 라이드!",
+    "description": "김윤아의 카리스마 보컬과 함께 하늘로 날아오르는 신나는 롤러코스터 🎢"
   },
   {
     "title": "일탈",
@@ -1905,7 +2017,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "TwA2JTQU-cA",
-    "lyrics": "매일 똑같이 굴러가는 하루 / 지루해 미칠 것 같을 땐 일탈을 꿈꿔봐!"
+    "lyrics": "매일 똑같이 굴러가는 하루 / 지루해 미칠 것 같을 땐 일탈을 꿈꿔봐!",
+    "description": "매일 똑같은 일상에 사표 던지고 싶은 마음을 대변하는 시원한 해방감 🗽"
   },
   {
     "title": "하하하쏭",
@@ -1915,7 +2028,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "BUJpLOKytNQ",
-    "lyrics": "모든 게 다 잘될 거야 하하하! / 웃어넘겨버려 세상사 다 그런 거지!"
+    "lyrics": "모든 게 다 잘될 거야 하하하! / 웃어넘겨버려 세상사 다 그런 거지!",
+    "description": "세상만사 고민 다 털어버리고 껄껄 웃어넘기게 만드는 유쾌한 에너지 😄"
   },
   {
     "title": "기억을 걷는 시간",
@@ -1925,7 +2039,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "0bTCIbyvBBc",
-    "lyrics": "아직도 너의 손을 잡은 듯 따스해 / 기억을 걷는 시간 속에서"
+    "lyrics": "아직도 너의 손을 잡은 듯 따스해 / 기억을 걷는 시간 속에서",
+    "description": "비 내리는 밤 창가를 바라보며 젖어들기 딱 좋은 한국 모던록의 금자탑 🌧️"
   },
   {
     "title": "Stay",
@@ -1935,7 +2050,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "XO92ZWK3j-s",
-    "lyrics": "Stay, stay with me / 내 곁에 머물러줘 제발 떠나가지 마"
+    "lyrics": "Stay, stay with me / 내 곁에 머물러줘 제발 떠나가지 마",
+    "description": "몽환적인 멜로디 속에 짙은 그리움을 담아낸 넬의 초기 대표 명곡 🌫️"
   },
   {
     "title": "행운을 빌어요",
@@ -1945,7 +2061,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "YTM3NuPtHj8",
-    "lyrics": "행운을 빌어요! 새로운 세상으로 떠나는 너에게 / 눈부신 미래가 기다릴 거야!"
+    "lyrics": "행운을 빌어요! 새로운 세상으로 떠나는 너에게 / 눈부신 미래가 기다릴 거야!",
+    "description": "새로운 시작을 앞둔 친구에게 건배와 함께 선물하고 싶은 긍정 밴드곡 🍀"
   },
   {
     "title": "Ready, Get Set, Go!",
@@ -1955,7 +2072,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "fd-coeJgjOM",
-    "lyrics": "Ready, Get Set, Go! 푸른 언덕을 달려 / 바람을 타고 저 하늘 높이 날아올라!"
+    "lyrics": "Ready, Get Set, Go! 푸른 언덕을 달려 / 바람을 타고 저 하늘 높이 날아올라!",
+    "description": "푸른 언덕을 질주하듯 가슴 뛰는 청춘의 활력과 설렘을 담은 트랙 🏃"
   },
   {
     "title": "공원여행",
@@ -1965,7 +2083,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "39fDs9ziNc8",
-    "lyrics": "초록빛 나무 그늘 아래 누워 / 한가로운 공원 여행을 떠나요"
+    "lyrics": "초록빛 나무 그늘 아래 누워 / 한가로운 공원 여행을 떠나요",
+    "description": "도심 속 한가로운 주말 오후의 여유로움을 선물하는 기분 좋은 팝록 🌳"
   },
   {
     "title": "개화 (Flowering)",
@@ -1975,7 +2094,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "7qvrRWMXY-8",
-    "lyrics": "차갑던 겨울 지나 꽃이 피어나듯 / 우리 사랑도 눈부시게 피어날 거야!"
+    "lyrics": "차갑던 겨울 지나 꽃이 피어나듯 / 우리 사랑도 눈부시게 피어날 거야!",
+    "description": "바이올린 사운드와 청량한 밴드 연주가 꽃처럼 화려하게 피어나는 곡 🌺"
   },
   {
     "title": "히어로 (Hero)",
@@ -1985,7 +2105,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "APoCluWXeRE",
-    "lyrics": "네가 힘들 때 언제든 달려갈게 / 난 너만의 히어로!"
+    "lyrics": "네가 힘들 때 언제든 달려갈게 / 난 너만의 히어로!",
+    "description": "만화 주인공이 된 듯 용기가 솟아오르는 통통 튀는 애니메이션 오프닝 감성 🦸"
   },
   {
     "title": "조깅",
@@ -1995,7 +2116,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "8JlNgny1GKQ",
-    "lyrics": "가벼운 발걸음으로 조깅하듯 달려가 / 답답한 도심을 벗어나 시원한 바람을 느껴!"
+    "lyrics": "가벼운 발걸음으로 조깅하듯 달려가 / 답답한 도심을 벗어나 시원한 바람을 느껴!",
+    "description": "답답한 일상을 벗어나 탁 트인 도로를 달리는 듯한 가벼운 리듬감 👟"
   },
   {
     "title": "사랑앓이",
@@ -2005,7 +2127,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "Y_nfGFZonpE",
-    "lyrics": "너무나 많이 사랑한 죄 / 널 미치도록 보고 싶어 눈물이 멈추질 않아!"
+    "lyrics": "너무나 많이 사랑한 죄 / 널 미치도록 보고 싶어 눈물이 멈추질 않아!",
+    "description": "이홍기의 호소력 짙은 보컬로 가요계를 평정했던 2000년대 레전드 밴드곡 💔"
   },
   {
     "title": "바래",
@@ -2015,7 +2138,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "-6jKSkWXjyQ",
-    "lyrics": "바래 널 바래 나만을 사랑해주길 / 다시 돌아와줘 내 곁으로 바래!"
+    "lyrics": "바래 널 바래 나만을 사랑해주길 / 다시 돌아와줘 내 곁으로 바래!",
+    "description": "빠른 템포와 중독성 넘치는 멜로디로 어깨를 들썩이게 만드는 히트곡 🌟"
   },
   {
     "title": "외톨이야",
@@ -2025,7 +2149,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "5mpQHCqKZQI",
-    "lyrics": "외톨이야 외톨이야 다리디리다랏두! / 봐봐 나를 봐봐 똑바로 내 두 눈을 봐!"
+    "lyrics": "외톨이야 외톨이야 다리디리다랏두! / 봐봐 나를 봐봐 똑바로 내 두 눈을 봐!",
+    "description": "전주만 나와도 '다리디리다랏두'가 자동 재생되는 대국민 떼창곡 🎸"
   },
   {
     "title": "시퍼런 봄",
@@ -2035,7 +2160,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "stKam-tazk0",
-    "lyrics": "시퍼렇게 멍든 청춘의 봄날 / 우린 아파하면서도 또다시 달려가"
+    "lyrics": "시퍼렇게 멍든 청춘의 봄날 / 우린 아파하면서도 또다시 달려가",
+    "description": "서늘하면서도 뜨거운 청춘의 불안과 열기를 터뜨리는 인디 명곡 🌿"
   },
   {
     "title": "아지랑이",
@@ -2045,7 +2171,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "C-v004ljzhI",
-    "lyrics": "아지랑이처럼 피어오르는 기억들 / 잡으려 해도 잡히지 않는 아련한 꿈"
+    "lyrics": "아지랑이처럼 피어오르는 기억들 / 잡으려 해도 잡히지 않는 아련한 꿈",
+    "description": "뿌연 연기처럼 피어오르는 몽환적 기타 사운드에 취하게 되는 트랙 🌫️"
   },
   {
     "title": "그대만 있다면",
@@ -2055,7 +2182,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "iFtDTa99HKI",
-    "lyrics": "그대만 있다면 그 어떤 슬픔도 / 다 견뎌낼 수 있어요 내 손을 잡아줘요"
+    "lyrics": "그대만 있다면 그 어떤 슬픔도 / 다 견뎌낼 수 있어요 내 손을 잡아줘요",
+    "description": "일기예보의 원곡을 완벽하게 재해석해 역주행 돌풍을 일으킨 밴드 발라드 💫"
   },
   {
     "title": "좋은 밤 좋은 꿈",
@@ -2065,7 +2193,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "mTonMiKVZRw",
-    "lyrics": "좋은 밤 좋은 꿈 꾸기를 / 내일은 오늘보다 더 행복하기를"
+    "lyrics": "좋은 밤 좋은 꿈 꾸기를 / 내일은 오늘보다 더 행복하기를",
+    "description": "지친 하루 끝에 따뜻한 위로와 포근한 잠을 선물하는 감성 명곡 🛌"
   },
   {
     "title": "Highlight",
@@ -2075,7 +2204,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "dsZM7NmsO20",
-    "lyrics": "Tonight is the Highlight! / 오늘 밤 주인공은 바로 너야! 터치드!"
+    "lyrics": "Tonight is the Highlight! / 오늘 밤 주인공은 바로 너야! 터치드!",
+    "description": "그레이트 서울 인베이전 우승팀의 폭발적인 무대 장악력과 압도적 보컬 🌟"
   },
   {
     "title": "야경",
@@ -2085,7 +2215,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "bKTTZRnanD0",
-    "lyrics": "화려한 도시의 불빛 너머로 / 우리의 추억이 야경처럼 반짝여"
+    "lyrics": "화려한 도시의 불빛 너머로 / 우리의 추억이 야경처럼 반짝여",
+    "description": "화려한 도시의 불빛 사이로 흐르는 묵직하고 웅장한 록 사운드 🌃"
   },
   {
     "title": "위잉위잉",
@@ -2095,7 +2226,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "GIa80KLuDwc",
-    "lyrics": "비틀비틀 걸어가는 나의 다리 / 오늘도 의미 없는 하루를 보냈네 위잉위잉"
+    "lyrics": "비틀비틀 걸어가는 나의 다리 / 오늘도 의미 없는 하루를 보냈네 위잉위잉",
+    "description": "나른한 청춘의 방황을 특유의 독보적인 그루브로 풀어낸 인디 신드롬곡 🐝"
   },
   {
     "title": "TOMBOY",
@@ -2105,7 +2237,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "w3-AKITQMi0",
-    "lyrics": "젊은 우리, 나이테는 잘 보이지 않고 / 찬란한 빛에 눈이 멀어 어둠을 삼키네"
+    "lyrics": "젊은 우리, 나이테는 잘 보이지 않고 / 찬란한 빛에 눈이 멀어 어둠을 삼키네",
+    "description": "불안해서 더 찬란한 20대의 초상을 대변하는 젊은이들의 송가 👦"
   },
   {
     "title": "와리가리",
@@ -2115,7 +2248,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "LhmJZetNTuU",
-    "lyrics": "왔다 갔다 와리가리 갈피를 못 잡아 / 사랑도 청춘도 다 알 수가 없네"
+    "lyrics": "왔다 갔다 와리가리 갈피를 못 잡아 / 사랑도 청춘도 다 알 수가 없네",
+    "description": "빈티지한 기타 리프와 중독성 강한 리듬으로 절로 몸을 흔들게 하는 곡 🕺"
   },
   {
     "title": "거울",
@@ -2125,7 +2259,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "8mQl0xX5Wn4",
-    "lyrics": "거울 속에 비친 내 모습은 누구인가 / 부서진 유리 조각 속에 갇힌 영혼!"
+    "lyrics": "거울 속에 비친 내 모습은 누구인가 / 부서진 유리 조각 속에 갇힌 영혼!",
+    "description": "하현우의 미친 성량과 날카로운 사이키델릭 기타가 작렬하는 명연주 🪞"
   },
   {
     "title": "Lazenca, Save Us",
@@ -2135,7 +2270,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "kATWdPEXHvo",
-    "lyrics": "라젠카, 세이브 어스! / 부활하라 대지의 전사여! Lazenca, Save Us!"
+    "lyrics": "라젠카, 세이브 어스! / 부활하라 대지의 전사여! Lazenca, Save Us!",
+    "description": "복면가왕 음악대장이 무대를 찢어놓았던 전설의 전율 사운드 ⚡️"
   },
   {
     "title": "고백",
@@ -2145,7 +2281,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "F0aPN-ZiZlA",
-    "lyrics": "중2 때까진 늘 첫째 줄에 / 겨우 160이 됐을 무렵 스쳐 지나간 첫사랑의 기억"
+    "lyrics": "중2 때까진 늘 첫째 줄에 / 겨우 160이 됐을 무렵 스쳐 지나간 첫사랑의 기억",
+    "description": "영화 '클래식'의 설렘을 간직한 한국 모던록 역사상 가장 아름다운 첫사랑 노래 💌"
   },
   {
     "title": "챠우챠우",
@@ -2155,7 +2292,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "0XbHhKpDpuI",
-    "lyrics": "너의 목소리가 들려 / 아무리 귀를 막아도 너의 목소리가 들려!"
+    "lyrics": "너의 목소리가 들려 / 아무리 귀를 막아도 너의 목소리가 들려!",
+    "description": "'너의 목소리가 들려' 무한 루프로 뇌리에 박히는 한국 인디의 시초 📻"
   },
   {
     "title": "Never Ending Story",
@@ -2165,7 +2303,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "VWqcR2cSBnk",
-    "lyrics": "그리워하면 언젠간 만나게 되는 / 어느 영화와 같은 일들이 이뤄져가기를"
+    "lyrics": "그리워하면 언젠간 만나게 되는 / 어느 영화와 같은 일들이 이뤄져가기를",
+    "description": "이승철의 감미로운 음색과 김태원의 서정적 멜로디가 빚어낸 불멸의 명작 📖"
   },
   {
     "title": "비와 당신의 이야기",
@@ -2175,7 +2314,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "DxyMf2jvLLw",
-    "lyrics": "사랑했어 너만을 사랑했어 / 비 내리는 날이면 떠오르는 너의 이름"
+    "lyrics": "사랑했어 너만을 사랑했어 / 비 내리는 날이면 떠오르는 너의 이름",
+    "description": "'사랑했어!' 고음 절규 파트에서 모든 남성들이 목청을 쥐어짜는 락 발라드 🌧️"
   },
   {
     "title": "아메리카노",
@@ -2185,7 +2325,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "wjI9wG_uIIM",
-    "lyrics": "아메 아메 아메 아메리카노 좋아 좋아 좋아! / 써도 써도 자꾸 마시게 돼 아메리카노!"
+    "lyrics": "아메 아메 아메 아메리카노 좋아 좋아 좋아! / 써도 써도 자꾸 마시게 돼 아메리카노!",
+    "description": "무한도전 서해안 고속도로 가요제를 뒤흔들었던 전국민 카페인 앤섬 ☕️"
   },
   {
     "title": "그라데이션",
@@ -2195,7 +2336,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "AIDnxCB5wBw",
-    "lyrics": "밤하늘에 번지는 노을처럼 / 내 마음에 너라는 색이 그라데이션 번져가"
+    "lyrics": "밤하늘에 번지는 노을처럼 / 내 마음에 너라는 색이 그라데이션 번져가",
+    "description": "여름밤 밤하늘처럼 풋풋하게 번져가는 짝사랑의 설렘을 담은 곡 🎨"
   },
   {
     "title": "폰서트",
@@ -2205,7 +2347,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "61pRq2zfsHo",
-    "lyrics": "이건 세상에서 제일 비싼 단독 공연 / 폰 속에서만 부르는 너만의 콘서트"
+    "lyrics": "이건 세상에서 제일 비싼 단독 공연 / 폰 속에서만 부르는 너만의 콘서트",
+    "description": "전화기 너머로 단 한 사람만을 위해 불러주는 달달함 한도 초과 세레나데 📱"
   },
   {
     "title": "봄이 좋냐??",
@@ -2215,7 +2358,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "ZDotTeH8qQI",
-    "lyrics": "봄이 그렇게도 좋냐 멍청이들아! / 벚꽃이 그렇게도 예쁘디 바보들아! 결국 다 떨어져라 몽땅 망해라!"
+    "lyrics": "봄이 그렇게도 좋냐 멍청이들아! / 벚꽃이 그렇게도 예쁘디 바보들아! 결국 다 떨어져라 몽땅 망해라!",
+    "description": "솔로들의 절대적 지지를 받는 통쾌하고 유쾌한 봄철 커플 저격송 🌸"
   },
   {
     "title": "풍문으로 들었소",
@@ -2225,7 +2369,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "NMxh--qa7Wk",
-    "lyrics": "그대 나를 두고 떠나갔다는 그 말을 / 풍문으로 들었소!"
+    "lyrics": "그대 나를 두고 떠나갔다는 그 말을 / 풍문으로 들었소!",
+    "description": "영화 '범죄와의 전쟁' 명장면을 수놓은 복고풍 훵크 록의 진수 🕶️"
   },
   {
     "title": "달이 차오른다, 가자",
@@ -2235,7 +2380,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "wG2lDphHVR8",
-    "lyrics": "달이 차오른다, 가자! / 달이 차오른다, 가자! 어서 가자!"
+    "lyrics": "달이 차오른다, 가자! / 달이 차오른다, 가자! 어서 가자!",
+    "description": "싸구려 커피를 넘어 독창적인 장기하표 말맛 록을 각인시킨 대표곡 🌕"
   },
   {
     "title": "부럽지가 않어",
@@ -2245,7 +2391,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "GwDjTm6tSWc",
-    "lyrics": "나는 부럽지가 않어 / 한 개도 부럽지가 않어! 전혀 부럽지가 않어!"
+    "lyrics": "나는 부럽지가 않어 / 한 개도 부럽지가 않어! 전혀 부럽지가 않어!",
+    "description": "온갖 허세와 자랑질을 단숨에 무력화시키는 쿨워터향 토크 랩 🧊"
   },
   {
     "title": "EVERYTHING",
@@ -2255,7 +2402,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "K4giYflGxAY",
-    "lyrics": "You are my everything! / 내 모든 세상이 너로 가득 차올라"
+    "lyrics": "You are my everything! / 내 모든 세상이 너로 가득 차올라",
+    "description": "사랑에 빠진 사람의 온 세상을 표현한 몽환적이고 로맨틱한 인디 발라드 🌌"
   },
   {
     "title": "기다린 만큼, 더",
@@ -2265,7 +2413,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "SXxYQ6t2mHQ",
-    "lyrics": "기다린 만큼 더 아파도 괜찮아 / 너를 만날 수만 있다면"
+    "lyrics": "기다린 만큼 더 아파도 괜찮아 / 너를 만날 수만 있다면",
+    "description": "드라마 '또 오해영'의 애틋함을 극대화했던 조휴일의 담담한 감성 보컬 ⏳"
   },
   {
     "title": "DINOSAUR",
@@ -2275,7 +2424,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "UclImkP67kw",
-    "lyrics": "우리 집 창문을 깨부수던 다이노소어! / 어릴 적 꿈속에 나타났던 DINOSAUR!"
+    "lyrics": "우리 집 창문을 깨부수던 다이노소어! / 어릴 적 꿈속에 나타났던 DINOSAUR!",
+    "description": "어린 시절의 공포를 청량한 EDM 신스팝으로 승화시킨 이찬혁의 천재적 트랙 🦖"
   },
   {
     "title": "200%",
@@ -2285,7 +2435,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "lCbbPNrvV8o",
-    "lyrics": "It must be L-O-V-E 200%! / 널 보면 심장이 터질 것 같아 200%!"
+    "lyrics": "It must be L-O-V-E 200%! / 널 보면 심장이 터질 것 같아 200%!",
+    "description": "상큼 발랄한 어쿠스틱 힙합 비트 위로 쏟아지는 악동뮤지션의 풋풋한 매력 💯"
   },
   {
     "title": "어떻게 이별까지 사랑하겠어, 널 사랑하는 거지",
@@ -2295,7 +2446,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "mZz9uYdj_v4",
-    "lyrics": "어떻게 이별까지 사랑하겠어 / 널 사랑하는 거지 그게 다인 거지"
+    "lyrics": "어떻게 이별까지 사랑하겠어 / 널 사랑하는 거지 그게 다인 거지",
+    "description": "긴 제목만큼이나 깊은 여운을 남기는 가을비 감성 이별 발라드 🍂"
   },
   {
     "title": "후라이의 꿈",
@@ -2305,7 +2457,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "3kGAlp_PNUg",
-    "lyrics": "침대에 누워 뒹굴뒹굴 계란후라이처럼 / 아무것도 안 하고 멍하니 있고 싶어"
+    "lyrics": "침대에 누워 뒹굴뒹굴 계란후라이처럼 / 아무것도 안 하고 멍하니 있고 싶어",
+    "description": "침대에 누워 아무것도 안 하고 뒹굴거리고 싶은 현대인들의 인생 힐링송 🍳"
   },
   {
     "title": "썸 탈꺼야",
@@ -2315,7 +2468,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "Je-AOvGZVso",
-    "lyrics": "사라져 아니 사라지지 마 / 내 마음을 보여줘 아니 보여주지 마 썸 탈꺼야!"
+    "lyrics": "사라져 아니 사라지지 마 / 내 마음을 보여줘 아니 보여주지 마 썸 탈꺼야!",
+    "description": "밀당하는 청춘남녀의 속마음을 간질간질하고 귀엽게 담아낸 음원 퀸의 곡 🍬"
   },
   {
     "title": "우주를 줄게",
@@ -2325,7 +2479,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "8DeV-Qax6as",
-    "lyrics": "커피를 너무 많이 마셨나 봐요 / 심장이 막 두근대고 내 우주를 다 줄게!"
+    "lyrics": "커피를 너무 많이 마셨나 봐요 / 심장이 막 두근대고 내 우주를 다 줄게!",
+    "description": "안지영의 독보적인 음색으로 온 세상을 핑크빛으로 물들였던 역주행 신화 🪐"
   },
   {
     "title": "여행",
@@ -2335,7 +2490,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "DkYXmxp7ZQA",
-    "lyrics": "저 오늘 떠나요 공항으로 / 캐리어 하나 들고 저 먼 세상으로 여행!"
+    "lyrics": "저 오늘 떠나요 공항으로 / 캐리어 하나 들고 저 먼 세상으로 여행!",
+    "description": "여권 챙겨 공항으로 당장 튀어가고 싶게 만드는 시원한 여름 여행 송 ✈️"
   },
   {
     "title": "그대에게",
@@ -2345,7 +2501,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "gJqCO8E63-s",
-    "lyrics": "숨 가쁘게 살아가는 순간 속에도 / 우린 서로 이렇게 함께 웃을 수 있어 그대에게!"
+    "lyrics": "숨 가쁘게 살아가는 순간 속에도 / 우린 서로 이렇게 함께 웃을 수 있어 그대에게!",
+    "description": "전주 브라스 터지자마자 술자리를 축제 개막식으로 만드는 영원한 레전드 🎺"
   },
   {
     "title": "별 빛이 내린다",
@@ -2355,7 +2512,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "-rlRvNkmZbc",
-    "lyrics": "별 빛이 내린다 샤라랄라라랄라~ / 온 세상이 너로 반짝여 샤라랄라라랄라~"
+    "lyrics": "별 빛이 내린다 샤라랄라라랄라~ / 온 세상이 너로 반짝여 샤라랄라라랄라~",
+    "description": "'샤라랄라라랄라'가 나오는 순간 모든 사람이 주인공이 되는 BGM 치트키 ✨"
   },
   {
     "title": "신호등",
@@ -2365,7 +2523,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "VO9OlWKo9tU",
-    "lyrics": "노란색 불빛에 멈춰 서서 갈팡질팡 / 붉은색 푸른색 그 사이 3초 그 짧은 시간!"
+    "lyrics": "노란색 불빛에 멈춰 서서 갈팡질팡 / 붉은색 푸른색 그 사이 3초 그 짧은 시간!",
+    "description": "사회초년생들의 서툰 청춘을 노란 신호등에 빗대어 전 국민의 공감을 산 명곡 🚦"
   },
   {
     "title": "에피소드",
@@ -2375,7 +2534,8 @@
     "mood": "normal",
     "genre": "BAND",
     "youtubeId": "MjXeOAouF3w",
-    "lyrics": "너와 나의 수많은 에피소드 / 지나간 시간마저 아름다운 한 편의 드라마"
+    "lyrics": "너와 나의 수많은 에피소드 / 지나간 시간마저 아름다운 한 편의 드라마",
+    "description": "지나간 연인과의 기억을 담담하면서도 따뜻하게 엮어낸 감성 팝 📼"
   },
   {
     "title": "나무",
@@ -2385,7 +2545,8 @@
     "mood": "chill",
     "genre": "BAND",
     "youtubeId": "IFixjYxnhsk",
-    "lyrics": "우리의 시간은 푸른 나무처럼 / 언제나 그 자리에 묵묵히 서 있을 거야"
+    "lyrics": "우리의 시간은 푸른 나무처럼 / 언제나 그 자리에 묵묵히 서 있을 거야",
+    "description": "독보적인 중저음 보이스로 마음 한구석을 묵직하게 어루만지는 힐링송 🌲"
   },
   {
     "title": "Supernova",
@@ -2395,7 +2556,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "WXx5-HGERcg",
-    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!"
+    "lyrics": "마치 된 것 같아 손오공! / 하늘 끝까지 날아올라 Super!",
+    "description": "쇠맛 사운드의 극치! Su-su-su-Supernova 클럽 룸 폭파 비트 🛸"
   },
   {
     "title": "Armageddon",
@@ -2405,7 +2567,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "vwnT4h7OGP4",
-    "lyrics": "Armageddon! 붉게 타오르는 밤 / 완전한 어둠을 깨고 일어서 Armageddon!"
+    "lyrics": "Armageddon! 붉게 타오르는 밤 / 완전한 어둠을 깨고 일어서 Armageddon!",
+    "description": "어두운 카리스마와 묵직한 베이스가 공간을 압도하는 다크 퓨처리즘 🪐"
   },
   {
     "title": "Next Level",
@@ -2415,7 +2578,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "dly3BvtmXbA",
-    "lyrics": "I'm on the Next Level 저 너머의 문을 열어 / 절대적 룰을 지켜 내 손을 놓지 말아!"
+    "lyrics": "I'm on the Next Level 저 너머의 문을 열어 / 절대적 룰을 지켜 내 손을 놓지 말아!",
+    "description": "ㄷ자 안무 필수! 변주 구간에서 소름 돋는 2020년대 최고 히트곡 📐"
   },
   {
     "title": "Ditto",
@@ -2425,7 +2589,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "haCpjUXIhrI",
-    "lyrics": "Stay in the middle, like you a little / Don't want no riddle, 말해줘 Say it ditto!"
+    "lyrics": "Stay in the middle, like you a little / Don't want no riddle, 말해줘 Say it ditto!",
+    "description": "추운 겨울밤 아련한 학창 시절 기억을 소환하는 볼티모어 클럽 사운드 ❄️"
   },
   {
     "title": "How Sweet",
@@ -2435,7 +2600,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "fTt3dbNBH20",
-    "lyrics": "How sweet it tastes! / 달콤하게 번지는 너와 나의 리듬!"
+    "lyrics": "How sweet it tastes! / 달콤하게 번지는 너와 나의 리듬!",
+    "description": "레트로 일렉트로닉 바이브와 쫀득한 그루브가 돋보이는 쿨한 트랙 🍭"
   },
   {
     "title": "해야 (HEYA)",
@@ -2445,7 +2611,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "tsoOtq6utk4",
-    "lyrics": "해야 해야 밝은 해야 떠올라라! / 뜨거운 태양처럼 붉게 타올라 HEYA!"
+    "lyrics": "해야 해야 밝은 해야 떠올라라! / 뜨거운 태양처럼 붉게 타올라 HEYA!",
+    "description": "한국 전통 설화의 멋과 강렬한 힙합 비트가 만난 파워풀한 무대 🔥"
   },
   {
     "title": "Perfect Night",
@@ -2455,7 +2622,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "bagucl7jjiM",
-    "lyrics": "Tonight I don't care what's right or wrong / 우린 밤새 춤출 거야 Perfect Night!"
+    "lyrics": "Tonight I don't care what's right or wrong / 우린 밤새 춤출 거야 Perfect Night!",
+    "description": "친구들과 밤새 미친 듯이 춤추고 놀고 싶을 때 가장 어울리는 파티송 🌃"
   },
   {
     "title": "이브, 프시케 그리고 푸른 수염의 아내",
@@ -2465,7 +2633,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "AIDKbriJcq0",
-    "lyrics": "I'm a mess in distress / 벗어나버려 금지된 선을 넘어 Boom boom boom!"
+    "lyrics": "I'm a mess in distress / 벗어나버려 금지된 선을 넘어 Boom boom boom!",
+    "description": "'Boom boom boom' 심장 때리는 저지 비트에 몸이 먼저 반응하는 클럽 트랙 💃"
   },
   {
     "title": "EASY",
@@ -2475,7 +2644,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "GAy1NSzjxYY",
-    "lyrics": "쉽지 않지만 내가 쉽게 만들어 / 거침없이 걸어가 I make it look easy!"
+    "lyrics": "쉽지 않지만 내가 쉽게 만들어 / 거침없이 걸어가 I make it look easy!",
+    "description": "부드럽고 힙한 올드스쿨 힙합 트랩 리듬으로 여유로운 멋을 뽐내는 곡 👟"
   },
   {
     "title": "퀸카 (Queencard)",
@@ -2485,7 +2655,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "VOcb6ZHxSjc",
-    "lyrics": "I'm a 퀸카! I'm a 퀸카! / I'm hot, my boob and booty is hot! 퀸카!"
+    "lyrics": "I'm a 퀸카! I'm a 퀸카! / I'm hot, my boob and booty is hot! 퀸카!",
+    "description": "'I'm a 퀸카!' 외치며 파티의 주인공이 되는 자존감 폭발 메가히트 👸"
   },
   {
     "title": "TOMBOY",
@@ -2495,7 +2666,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "t4obv0Arf2c",
-    "lyrics": "It's neither man nor woman / 그냥 나일 뿐이야 I'm a freakin' TOMBOY!"
+    "lyrics": "It's neither man nor woman / 그냥 나일 뿐이야 I'm a freakin' TOMBOY!",
+    "description": "세상이 정한 틀을 걷어차는 화끈한 팝펑크 에너지의 떼창곡 🤘"
   },
   {
     "title": "나는 아픈 건 딱 질색이니까 (Fate)",
@@ -2505,7 +2677,8 @@
     "mood": "high",
     "genre": "BAND",
     "youtubeId": "kWmcsY7WmpU",
-    "lyrics": "어느 날 나타나 내 삶을 흔든 너 / 아픈 건 딱 질색이지만 너라면 괜찮아!"
+    "lyrics": "어느 날 나타나 내 삶을 흔든 너 / 아픈 건 딱 질색이지만 너라면 괜찮아!",
+    "description": "J-Rock 애니메이션 오프닝을 연상시키는 벅차오르는 봄날의 역주행송 🌸"
   },
   {
     "title": "Blueming",
@@ -2515,7 +2688,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "tQhgEYJo8Dc",
-    "lyrics": "우리의 네모 칸은 bloom / 엄지손가락으로 장미꽃을 피워 I feel blue-ming!"
+    "lyrics": "우리의 네모 칸은 bloom / 엄지손가락으로 장미꽃을 피워 I feel blue-ming!",
+    "description": "엄지손가락으로 장미를 피우듯 통통 튀는 설렘 가득 팝록 🌹"
   },
   {
     "title": "좋은 날",
@@ -2525,7 +2699,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "V6WWJNpIJN4",
-    "lyrics": "나는요 오빠가 좋은걸 어떡해~ / 하나 둘 셋 넷 하늘이 파래서 눈물이 나!"
+    "lyrics": "나는요 오빠가 좋은걸 어떡해~ / 하나 둘 셋 넷 하늘이 파래서 눈물이 나!",
+    "description": "3단 고음 파트에서 다 같이 목청 쥐어짜며 도전하는 국민 떼창곡 ☀️"
   },
   {
     "title": "팔레트 (feat. G-DRAGON)",
@@ -2535,7 +2710,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "d4816dHK2Sc",
-    "lyrics": "이제 조금 알 것 같아 날 / 핫핑크보다 진한 보라색을 더 좋아해"
+    "lyrics": "이제 조금 알 것 같아 날 / 핫핑크보다 진한 보라색을 더 좋아해",
+    "description": "스물다섯 나이의 자신을 온전히 사랑하게 된 아이유와 지디의 특급 만남 🎨"
   },
   {
     "title": "Love wins all",
@@ -2545,7 +2721,8 @@
     "mood": "chill",
     "genre": "K-POP",
     "youtubeId": "IXaOUXVawN4",
-    "lyrics": "우리를 파괴하려는 세상 속에서도 / 결국 사랑이 모든 걸 이겨낼 거야 Love wins all"
+    "lyrics": "우리를 파괴하려는 세상 속에서도 / 결국 사랑이 모든 걸 이겨낼 거야 Love wins all",
+    "description": "뷔와의 뮤비로 화제를 모은, 결국 모든 어둠을 이겨내는 사랑의 찬가 🕊️"
   },
   {
     "title": "밤편지",
@@ -2555,7 +2732,8 @@
     "mood": "chill",
     "genre": "K-POP",
     "youtubeId": "EjMTw4xLcBI",
-    "lyrics": "이 밤 그날의 반딧불을 당신의 창 가까이 보낼게요 / 좋은 꿈 이길 바라요"
+    "lyrics": "이 밤 그날의 반딧불을 당신의 창 가까이 보낼게요 / 좋은 꿈 이길 바라요",
+    "description": "고요한 밤 잔잔하게 술잔을 기울이며 서로에게 집중하게 만드는 명품 힐링곡 💌"
   },
   {
     "title": "손오공",
@@ -2565,7 +2743,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "tFPbzfU5XL4",
-    "lyrics": "마치 된 것 같아 손오공! / 구름을 타고 날아올라 하늘 끝까지 Super!"
+    "lyrics": "마치 된 것 같아 손오공! / 구름을 타고 날아올라 하늘 끝까지 Super!",
+    "description": "구름 타고 날아오르는 손오공에 빙의해 무대를 찢는 메가 에너지 🔥"
   },
   {
     "title": "아주 NICE",
@@ -2575,7 +2754,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "pOA-XQsEG44",
-    "lyrics": "오늘 하루도 너 때문에 / 기분 완전 아주 NICE! 빰빰빰빰 아주 NICE!"
+    "lyrics": "오늘 하루도 너 때문에 / 기분 완전 아주 NICE! 빰빰빰빰 아주 NICE!",
+    "description": "무한 앵콜의 전설! 술자리 마지막 잔 비우고 뛰기 딱 좋은 도파민 폭발곡 💥"
   },
   {
     "title": "HOT",
@@ -2585,7 +2765,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "Ide2nawCz4Y",
-    "lyrics": "태양을 마주보고 달려가 / 타오르는 열정 속에 We burn it HOT!"
+    "lyrics": "태양을 마주보고 달려가 / 타오르는 열정 속에 We burn it HOT!",
+    "description": "사막의 태양처럼 뜨겁게 달아오르는 비트 위로 펼쳐지는 정열의 댄스 ☀️"
   },
   {
     "title": "뱅뱅뱅 (BANG BANG BANG)",
@@ -2595,7 +2776,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "CyrGxvdbR5c",
-    "lyrics": "빵야 빵야 빵야! 뱅뱅뱅 뱅뱅뱅! / 다 같이 흔들어 빵야 빵야 빵야!"
+    "lyrics": "빵야 빵야 빵야! 뱅뱅뱅 뱅뱅뱅! / 다 같이 흔들어 빵야 빵야 빵야!",
+    "description": "테이블 뒤집어지는 파티 앤섬! 총 쏘는 안무 안 하면 벌주 마셔야 함 🔫"
   },
   {
     "title": "FANTASTIC BABY",
@@ -2605,7 +2787,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "VdIVka8TjT0",
-    "lyrics": "WOW, FANTASTIC BABY! / 다 같이 놀자 빰빠라밤 빰빰빰빰 Dance!"
+    "lyrics": "WOW, FANTASTIC BABY! / 다 같이 놀자 빰빠라밤 빰빰빰빰 Dance!",
+    "description": "WOW FANTASTIC BABY! 2010년대 전 세계 클럽을 강타한 레전드 댄스 🕺"
   },
   {
     "title": "붉은 노을",
@@ -2615,7 +2798,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "eyUZPAIGcvc",
-    "lyrics": "난 너를 사랑해! 이 세상은 너뿐이야! / 소리쳐 부르지만 저 붉은 노을만 붉게 타오르고!"
+    "lyrics": "난 너를 사랑해! 이 세상은 너뿐이야! / 소리쳐 부르지만 저 붉은 노을만 붉게 타오르고!",
+    "description": "이문세의 원곡을 가장 완벽하고 신나게 재해석한 국민 떼창 앤섬 🌅"
   },
   {
     "title": "하루하루",
@@ -2625,7 +2809,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "gpF4Z6YRG9c",
-    "lyrics": "제발 하루하루만이라도 날 잊지 말아줘 / 돌아보지 말고 떠나가라"
+    "lyrics": "제발 하루하루만이라도 날 잊지 말아줘 / 돌아보지 말고 떠나가라",
+    "description": "전주 피아노 소리만 들어도 그 시절 싸이월드 BGM 감성에 젖는 명곡 🎹"
   },
   {
     "title": "Dynamite",
@@ -2635,7 +2820,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "gdZLi9oWNZg",
-    "lyrics": "Cause I-I-I'm in the stars tonight / So watch me bring the fire and set the night alight!"
+    "lyrics": "Cause I-I-I'm in the stars tonight / So watch me bring the fire and set the night alight!",
+    "description": "빌보드 핫100 1위! 전 세계를 춤추게 만든 경쾌한 디스코 팝의 마법 🧨"
   },
   {
     "title": "Butter",
@@ -2645,7 +2831,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "jH--Wof3HfQ",
-    "lyrics": "Smooth like butter, like a criminal undercover / 너의 맘속으로 스며들어 Butter!"
+    "lyrics": "Smooth like butter, like a criminal undercover / 너의 맘속으로 스며들어 Butter!",
+    "description": "버터처럼 부드럽게 귓가에 스며드는 매력적인 서머 팝 댄스 🧈"
   },
   {
     "title": "작은 것들을 위한 시 (Boy With Luv)",
@@ -2655,7 +2842,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "OEnvXsyGZmU",
-    "lyrics": "네 전부를 함께하고 싶어 / 너의 모든 게 궁금해 Boy with luv!"
+    "lyrics": "네 전부를 함께하고 싶어 / 너의 모든 게 궁금해 Boy with luv!",
+    "description": "할시와 함께한 화사하고 설렘 가득한 글로벌 메가히트송 💖"
   },
   {
     "title": "뚜두뚜두 (DDU-DU DDU-DU)",
@@ -2665,7 +2853,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "RMc9qFrCqno",
-    "lyrics": "착한 얼굴에 그렇지 못한 태도 / 두 번 생각해 흔한 남들처럼 착한 척은 안 하니까!"
+    "lyrics": "착한 얼굴에 그렇지 못한 태도 / 두 번 생각해 흔한 남들처럼 착한 척은 안 하니까!",
+    "description": "권총 안무와 함께 전 세계 유튜브 조회수를 갈아치운 걸크러시 끝판왕 💥"
   },
   {
     "title": "Kill This Love",
@@ -2675,7 +2864,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "OkmVcYtCqjw",
-    "lyrics": "Let's kill this love! / Yeah yeah yeah yeah yeah, Rum, pum, pum, pum, pum!"
+    "lyrics": "Let's kill this love! / Yeah yeah yeah yeah yeah, Rum, pum, pum, pum, pum!",
+    "description": "웅장한 마칭 밴드 브라스와 함께 사랑의 상처를 끝장내는 카리스마 💔"
   },
   {
     "title": "마지막처럼",
@@ -2685,7 +2875,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "1qsKHHj7no8",
-    "lyrics": "마지막처럼 마-마-마지막처럼 / 내일 따윈 없는 것처럼 사랑해줘!"
+    "lyrics": "마지막처럼 마-마-마지막처럼 / 내일 따윈 없는 것처럼 사랑해줘!",
+    "description": "내일 따윈 없는 것처럼 불태우며 춤추고 싶을 때 틀어야 하는 청량 댄스 🎆"
   },
   {
     "title": "TT",
@@ -2695,7 +2886,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "svtqpYNg6D8",
-    "lyrics": "I'm like TT, Just like TT / 이런 내 맘 모르고 너무해 너무해!"
+    "lyrics": "I'm like TT, Just like TT / 이런 내 맘 모르고 너무해 너무해!",
+    "description": "우는 이모티콘 춤으로 온 나라를 들썩이게 만들었던 깜찍한 팝 넘버 🥺"
   },
   {
     "title": "강남스타일",
@@ -2705,7 +2897,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "y5ggaJEyhzU",
-    "lyrics": "오빤 강남스타일! Eh~ Sexy Lady! / 오오오오 오빤 강남스타일!"
+    "lyrics": "오빤 강남스타일! Eh~ Sexy Lady! / 오오오오 오빤 강남스타일!",
+    "description": "유튜브 최초 10억 뷰 신화! 전 세계를 뒤흔든 불멸의 말춤 비트 🐎"
   },
   {
     "title": "That That (prod. & feat. SUGA of BTS)",
@@ -2715,7 +2908,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "oQ8bTY4WvZw",
-    "lyrics": "That that, I like that! / 신나게 흔들어 24시간 파티 That that, I like that!"
+    "lyrics": "That that, I like that! / 신나게 흔들어 24시간 파티 That that, I like that!",
+    "description": "싸이와 슈가의 폭발적 시너지! 24시간 쉬지 않고 뛰어노는 축제 앤섬 🤠"
   },
   {
     "title": "연예인",
@@ -2725,7 +2919,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "bns0ppXau34",
-    "lyrics": "그대의 연예인이 되어 평생을 웃겨줄게요 / 밤낮없이 춤추고 노래할게요!"
+    "lyrics": "그대의 연예인이 되어 평생을 웃겨줄게요 / 밤낮없이 춤추고 노래할게요!",
+    "description": "'그대의 연예인이 되어 평생 웃겨줄게요' 진심 어린 사랑의 유쾌한 고백 🎪"
   },
   {
     "title": "다시 만난 세계",
@@ -2735,7 +2930,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "xqLV-YzIr3s",
-    "lyrics": "특별한 기적을 기다리지 마 / 눈앞에선 우리의 거친 길은 다시 만난 세계!"
+    "lyrics": "특별한 기적을 기다리지 마 / 눈앞에선 우리의 거친 길은 다시 만난 세계!",
+    "description": "한국 걸그룹 역사상 최고의 데뷔곡! 벅차오르는 멜로디에 눈물샘 자극 🌈"
   },
   {
     "title": "Gee",
@@ -2745,7 +2941,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "jCtDYdgvn7s",
-    "lyrics": "Gee Gee Gee Gee Baby Baby Baby / 너무 반짝반짝 눈이 부셔 No No No No No!"
+    "lyrics": "Gee Gee Gee Gee Baby Baby Baby / 너무 반짝반짝 눈이 부셔 No No No No No!",
+    "description": "흰 티에 청바지 열풍! 깜찍함과 중독성의 정점을 찍은 레전드 걸그룹 명곡 👖"
   },
   {
     "title": "내가 제일 잘 나가",
@@ -2755,7 +2952,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "XQBJJYt37Ec",
-    "lyrics": "내가 제일 잘 나가! / Bam Ratatata Tatatatata! 내가 제일 잘 나가!"
+    "lyrics": "내가 제일 잘 나가! / Bam Ratatata Tatatatata! 내가 제일 잘 나가!",
+    "description": "걸크러시의 원조! 비트 터지는 순간 자존감 최고조로 치솟는 클럽 앤섬 👑"
   },
   {
     "title": "I Don't Care",
@@ -2765,7 +2963,8 @@
     "mood": "normal",
     "genre": "K-POP",
     "youtubeId": "_y6c8ATG2L8",
-    "lyrics": "I don't care 그만할래 니가 어디서 뭘 하든 / 이제 정말 상관 안 할게 비켜줄래"
+    "lyrics": "I don't care 그만할래 니가 어디서 뭘 하든 / 이제 정말 상관 안 할게 비켜줄래",
+    "description": "바람피우는 남친에게 쿨하게 날리는 통쾌한 레게 팝 명곡 💅"
   },
   {
     "title": "Sticky",
@@ -2775,7 +2974,8 @@
     "mood": "high",
     "genre": "K-POP",
     "youtubeId": "m2iuZ-uDziM",
-    "lyrics": "Sweet like a candy, 끈적하게 달라붙어 / 뜨거운 태양 아래 녹아내려 Sticky!"
+    "lyrics": "Sweet like a candy, 끈적하게 달라붙어 / 뜨거운 태양 아래 녹아내려 Sticky!",
+    "description": "뜨거운 한여름 워터밤 무대를 장악한 가장 핫하고 끈적한 서머 바이브 🌴"
   }
 ];
 
@@ -3053,8 +3253,7 @@
       atmosphere: null,
       genre: null,
       mood: 'normal',
-      playMode: 'sing', // 'sing', 'automix'
-      singAlongVisible: true,
+      playMode: 'automix', // 'automix', 'manual'
       playedKeys: new Set(),
       loopCount: 0,
       strobeOn: false,
@@ -3115,46 +3314,43 @@
 
       document.querySelectorAll('.mode-chip').forEach(btn => {
         btn.classList.remove(
-          'border-neonPink', 'border-neonCyan',
-          'bg-pink-950/80', 'bg-cyan-950/80',
-          'text-white', 'border-b-pink-400', 'border-b-cyan-400',
-          'shadow-[0_0_15px_rgba(236,72,153,0.4)]', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]'
+          'border-neonCyan', 'border-neonPurple',
+          'bg-cyan-950/80', 'bg-purple-950/80',
+          'text-white', 'border-b-cyan-400', 'border-b-purple-400',
+          'shadow-[0_0_15px_rgba(6,182,212,0.4)]', 'shadow-[0_0_15px_rgba(168,85,247,0.4)]'
         );
         btn.classList.add('border-zinc-700/80', 'border-b-zinc-950', 'bg-zinc-900/90', 'text-zinc-300');
       });
 
       el.classList.remove('border-zinc-700/80', 'border-b-zinc-950', 'bg-zinc-900/90', 'text-zinc-300');
-      if (mode === 'sing') {
-        el.classList.add('border-neonPink', 'border-b-pink-400', 'bg-pink-950/80', 'text-white', 'shadow-[0_0_15px_rgba(236,72,153,0.4)]');
-      } else {
+      if (mode === 'automix') {
         el.classList.add('border-neonCyan', 'border-b-cyan-400', 'bg-cyan-950/80', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]');
+      } else {
+        el.classList.add('border-neonPurple', 'border-b-purple-400', 'bg-purple-950/80', 'text-white', 'shadow-[0_0_15px_rgba(168,85,247,0.4)]');
       }
     }
 
-    // Play Mode switcher on desk (Supports 30s sing-along and 30s auto-mix)
+    // Play Mode switcher on desk (Supports 30s auto-mix and manual mix)
     function setPlayMode(mode) {
       soundEngine.playScratch();
       state.playMode = mode;
       state.loopCount = 0;
       
-      const btnSing = document.getElementById('modeBtnSing');
       const btnMix = document.getElementById('modeBtnMix');
-      const card = document.getElementById('singAlongCard');
+      const btnManual = document.getElementById('modeBtnManual');
       const bgm = document.getElementById('realBgmAudio');
 
-      [btnSing, btnMix].forEach(b => {
+      [btnMix, btnManual].forEach(b => {
         if (b) b.className = 'arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition';
       });
 
-      if (mode === 'sing') {
-        if (btnSing) btnSing.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900 transition';
-        if (card) card.classList.remove('hidden');
-        showToast("🎤 떼창 모드 ON! (가사를 보며 다 함께 떼창!)");
-        if (bgm.paused) bgm.play();
-      } else if (mode === 'automix') {
+      if (mode === 'automix') {
         if (btnMix) btnMix.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonCyan text-black shadow-md border-b-cyan-700 transition';
-        showToast("⚡️ 30초 믹싱 ON! (끝나면 다음 라운드로 즉시 자동 믹싱)");
-        if (bgm.paused) bgm.play();
+        showToast("⚡️ 30초 자동믹싱 ON! (끝나면 다음 라운드로 즉시 자동 전환)");
+        if (bgm && bgm.paused) bgm.play();
+      } else if (mode === 'manual') {
+        if (btnManual) btnManual.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPurple text-white shadow-[0_0_12px_rgba(168,85,247,0.5)] border-b-purple-900 transition';
+        showToast("⏸ 수동 믹싱 ON! (곡이 끝나면 대기하며 직접 다음 곡을 넘깁니다)");
       }
     }
 
@@ -3225,23 +3421,6 @@
       }
     }
 
-    // Toggle Sing-Along Lyrics Card
-    function toggleSingAlongMode() {
-      soundEngine.playScratch();
-      const card = document.getElementById('singAlongCard');
-      const btn = document.getElementById('modeBtnSing');
-      state.singAlongVisible = !state.singAlongVisible;
-
-      if (state.singAlongVisible) {
-        if (card) card.classList.remove('hidden');
-        if (btn) btn.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900 transition';
-        showToast("🎤 떼창 가사 표시 ON!");
-      } else {
-        if (card) card.classList.add('hidden');
-        if (btn) btn.className = 'arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition';
-        showToast("떼창 가사를 접었습니다.");
-      }
-    }
 
     // Direct Spotify 1-Tap Launcher
     function openSpotifyDirect() {
@@ -3403,14 +3582,10 @@
       document.getElementById('ruleStep2').textContent = mission.steps[1];
       document.getElementById('ruleStep3').textContent = mission.steps[2];
 
-      // Update Sing-Along Lyrics Card
-      const lyricsEl = document.getElementById('singAlongLyrics');
-      if (lyricsEl) {
-        lyricsEl.textContent = track.lyrics || `"${track.title}의 가장 신나는 킬링파트를 다 함께 떼창해보세요! 🍻"`;
-      }
-      const lyricsSearch = document.getElementById('lyricsSearchLink');
-      if (lyricsSearch) {
-        lyricsSearch.href = `https://search.naver.com/search.naver?query=${encodeURIComponent(track.artist + ' ' + track.title + ' 가사')}`;
+      // Update DJ Track Note (곡 한줄 설명)
+      const noteEl = document.getElementById('djTrackNoteText');
+      if (noteEl) {
+        noteEl.textContent = track.description || `"${track.artist} - ${track.title}: 분위기를 띄우는 신나는 비트! 🍻"`;
       }
 
       // Synchronize 30s background audio
@@ -3425,7 +3600,7 @@
           setVinylSpinning(true);
           const icon = document.getElementById('deskPlayIcon');
           if (icon) icon.textContent = '⏸';
-          const modeLabels = { 'sing': '🎤 떼창 모드', 'automix': '⚡️ 30초 믹싱' };
+          const modeLabels = { 'automix': '⚡️ 30초 믹싱', 'manual': '⏸ 수동 모드' };
           document.getElementById('audioStatusText').textContent = modeLabels[state.playMode] || '비트 스트리밍';
         }).catch(err => {
           console.warn("Audio play blocked:", err);
@@ -3519,12 +3694,17 @@
       }
     }
 
-    // Auto next when audio ends (handles 30s automix)
+    // Auto next when audio ends (handles 30s automix or manual mode)
     bgm.addEventListener('ended', () => {
       if (state.playMode === 'automix') {
         soundEngine.playScratch();
         showToast("⚡️ 30초 믹싱: 다음 라운드로 자동 전환!");
         generateNewRound();
+      } else {
+        setVinylSpinning(false);
+        const icon = document.getElementById('deskPlayIcon');
+        if (icon) icon.textContent = '▶';
+        document.getElementById('audioStatusText').textContent = '재생 완료 (대기 중)';
       }
     });
 

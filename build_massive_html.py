@@ -457,23 +457,23 @@ html_content = f'''<!DOCTYPE html>
       <div class="space-y-1.5">
         <label class="text-xs font-black text-zinc-200 flex items-center justify-between">
           <span class="flex items-center space-x-2">
-            <span class="px-1.5 py-0.5 rounded bg-pink-950 text-neonPink border border-pink-600/50 font-mono text-[10px]">05</span>
-            <span>술자리 떼창 & 진행 모드</span>
+            <span class="px-1.5 py-0.5 rounded bg-cyan-950 text-neonCyan border border-cyan-600/50 font-mono text-[10px]">05</span>
+            <span>술자리 진행 모드</span>
           </span>
           <span class="text-[10px] text-zinc-400 font-normal">진행 중 언제든 변경 가능</span>
         </label>
         <div class="grid grid-cols-2 gap-2 text-xs font-medium">
-          <button type="button" onclick="selectPlayMode('sing', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-neonPink border-b-pink-400 bg-pink-950/80 text-white text-center shadow-[0_0_15px_rgba(236,72,153,0.4)]">
-            <span class="block font-black text-xs">🎤 떼창 모드 (추천)</span>
-            <span class="text-[9px] text-pink-200/90 block mt-0.5">화면에 킬링파트 가사를 보며 함께 떼창</span>
+          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-neonCyan border-b-cyan-400 bg-cyan-950/80 text-white text-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+            <span class="block font-black text-xs">⚡️ 30초 자동믹싱 (추천)</span>
+            <span class="text-[9px] text-cyan-200/90 block mt-0.5">30초 재생 후 다음 라운드로 빠른 전환</span>
           </button>
-          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
-            <span class="block font-bold text-xs">⚡️ 30초 자동믹싱</span>
-            <span class="text-[9px] text-zinc-400 block mt-0.5">30초 재생 후 다음 라운드로 빠른 전환</span>
+          <button type="button" onclick="selectPlayMode('manual', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
+            <span class="block font-bold text-xs">⏸ 수동 믹싱</span>
+            <span class="text-[9px] text-zinc-400 block mt-0.5">현재 분위기 유지 & 직접 다음 곡 넘기기</span>
           </button>
         </div>
         <div class="text-[9.5px] text-zinc-400 text-center mt-1.5 font-medium">
-          💡 완곡을 듣고 싶을 땐 플레이어 상단의 <span class="text-spotifyGreen font-bold">🟢 Spotify 완곡</span> 버튼을 누르면 즉시 연결됩니다!
+          💡 완곡을 듣고 싶을 땐 상단의 <span class="text-spotifyGreen font-bold">🟢 Spotify 완곡</span> 버튼을 누르면 즉시 연결됩니다!
         </div>
       </div>
 
@@ -584,15 +584,15 @@ html_content = f'''<!DOCTYPE html>
         <!-- Mode Switcher & Transport Controls -->
         <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800/80">
           
-          <!-- Mode Toggle Pills: 🎤 떼창 모드 vs ⚡️ 30초 믹싱 vs 🟢 Spotify 완곡 -->
+          <!-- Mode Toggle Pills: ⚡️ 30초 믹싱 vs ⏸ 수동 믹싱 vs 🟢 Spotify 완곡 -->
           <div class="flex items-center space-x-1.5 bg-zinc-950/90 p-1 rounded-xl border border-zinc-800 text-[11px]">
-            <button onclick="setPlayMode('sing')" id="modeBtnSing" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900" title="화면에 떼창 가사를 띄워 다 함께 부르기">
-              🎤 떼창 모드
-            </button>
-            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="30초 후 다음 라운드로 자동 믹싱">
+            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonCyan text-black shadow-[0_0_12px_rgba(6,182,212,0.5)] border-b-cyan-700 transition" title="30초 후 다음 라운드로 자동 믹싱">
               ⚡️ 30초 믹싱
             </button>
-            <button onclick="openSpotifyDirect()" id="modeBtnSpotify" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-emerald-950 text-spotifyGreen border border-emerald-700 border-b-emerald-950 hover:bg-emerald-900 shadow-[0_0_10px_rgba(29,185,84,0.3)] flex items-center space-x-1" title="스포티파이 앱에서 3~4분 완곡 재생">
+            <button onclick="setPlayMode('manual')" id="modeBtnManual" class="arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition" title="수동으로 다음 곡 넘기기">
+              ⏸ 수동 믹싱
+            </button>
+            <button onclick="openSpotifyDirect()" id="modeBtnSpotify" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-emerald-950 text-spotifyGreen border border-emerald-700 border-b-emerald-950 hover:bg-emerald-900 shadow-[0_0_10px_rgba(29,185,84,0.3)] flex items-center space-x-1 transition" title="스포티파이 앱에서 3~4분 완곡 재생">
               <span>🟢 Spotify 완곡</span>
               <span>↗</span>
             </button>
@@ -618,25 +618,25 @@ html_content = f'''<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- 🎤 SING-ALONG LYRICS ZONE (떼창 포인트 가사 카드) -->
-      <div id="singAlongCard" class="bg-gradient-to-r from-pink-950/90 via-purple-950/80 to-zinc-950 border-2 border-neonPink/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(236,72,153,0.35)] space-y-1.5 transition duration-300">
+      <!-- 🎧 DJ TRACK NOTE (곡 한줄 설명 / 술자리 가이드 카드) -->
+      <div id="djTrackNoteCard" class="bg-gradient-to-r from-purple-950/90 via-zinc-900/90 to-zinc-950 border-2 border-neonPurple/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(168,85,247,0.35)] space-y-1.5 transition duration-300">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-1.5">
-            <span class="text-sm animate-bounce">🎤</span>
-            <span class="text-xs font-black tracking-wider text-pink-300">떼창 포인트 (킬링파트 가사)</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-900/60 text-pink-200 border border-pink-500/40 font-bold">SING-ALONG</span>
+            <span class="text-sm animate-pulse">🎧</span>
+            <span class="text-xs font-black tracking-wider text-purple-300">DJ TRACK NOTE (한줄 설명)</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-900/60 text-purple-200 border border-purple-500/40 font-bold">DJ PICK</span>
           </div>
           <button onclick="openSpotifyDirect()" class="text-[10px] font-black text-spotifyGreen hover:text-emerald-300 flex items-center space-x-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-700/60 transition" title="스포티파이에서 완곡 듣기">
             <span>🟢 Spotify 완곡</span>
             <span>↗</span>
           </button>
         </div>
-        <div id="singAlongLyrics" class="text-sm sm:text-base font-black text-white text-center leading-relaxed tracking-wide py-2 px-3 bg-black/50 rounded-xl border border-pink-500/30 shadow-inner">
-          "가사 불러오는 중..."
+        <div id="djTrackNoteText" class="text-xs sm:text-sm font-bold text-zinc-100 text-center leading-relaxed tracking-wide py-2.5 px-3 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner">
+          "DJ 추천 코멘트 불러오는 중..."
         </div>
         <div class="flex items-center justify-between text-[9.5px] text-zinc-400 px-1 pt-0.5">
-          <span>🍻 다 함께 술잔 들고 후렴구를 소리쳐보세요!</span>
-          <a id="lyricsSearchLink" href="#" target="_blank" class="hover:text-pink-300 underline font-medium">가사 전문 검색 ↗</a>
+          <span>🍻 이 곡에 어울리는 술자리 바이브를 즐겨보세요!</span>
+          <span class="text-purple-300/90 font-semibold">술자리 맞춤 BGM 🎶</span>
         </div>
       </div>
 
@@ -1059,8 +1059,7 @@ html_content = f'''<!DOCTYPE html>
       atmosphere: null,
       genre: null,
       mood: 'normal',
-      playMode: 'sing', // 'sing', 'automix'
-      singAlongVisible: true,
+      playMode: 'automix', // 'automix', 'manual'
       playedKeys: new Set(),
       loopCount: 0,
       strobeOn: false,
@@ -1121,46 +1120,43 @@ html_content = f'''<!DOCTYPE html>
 
       document.querySelectorAll('.mode-chip').forEach(btn => {{
         btn.classList.remove(
-          'border-neonPink', 'border-neonCyan',
-          'bg-pink-950/80', 'bg-cyan-950/80',
-          'text-white', 'border-b-pink-400', 'border-b-cyan-400',
-          'shadow-[0_0_15px_rgba(236,72,153,0.4)]', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]'
+          'border-neonCyan', 'border-neonPurple',
+          'bg-cyan-950/80', 'bg-purple-950/80',
+          'text-white', 'border-b-cyan-400', 'border-b-purple-400',
+          'shadow-[0_0_15px_rgba(6,182,212,0.4)]', 'shadow-[0_0_15px_rgba(168,85,247,0.4)]'
         );
         btn.classList.add('border-zinc-700/80', 'border-b-zinc-950', 'bg-zinc-900/90', 'text-zinc-300');
       }});
 
       el.classList.remove('border-zinc-700/80', 'border-b-zinc-950', 'bg-zinc-900/90', 'text-zinc-300');
-      if (mode === 'sing') {{
-        el.classList.add('border-neonPink', 'border-b-pink-400', 'bg-pink-950/80', 'text-white', 'shadow-[0_0_15px_rgba(236,72,153,0.4)]');
-      }} else {{
+      if (mode === 'automix') {{
         el.classList.add('border-neonCyan', 'border-b-cyan-400', 'bg-cyan-950/80', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]');
+      }} else {{
+        el.classList.add('border-neonPurple', 'border-b-purple-400', 'bg-purple-950/80', 'text-white', 'shadow-[0_0_15px_rgba(168,85,247,0.4)]');
       }}
     }}
 
-    // Play Mode switcher on desk (Supports 30s sing-along and 30s auto-mix)
+    // Play Mode switcher on desk (Supports 30s auto-mix and manual mix)
     function setPlayMode(mode) {{
       soundEngine.playScratch();
       state.playMode = mode;
       state.loopCount = 0;
       
-      const btnSing = document.getElementById('modeBtnSing');
       const btnMix = document.getElementById('modeBtnMix');
-      const card = document.getElementById('singAlongCard');
+      const btnManual = document.getElementById('modeBtnManual');
       const bgm = document.getElementById('realBgmAudio');
 
-      [btnSing, btnMix].forEach(b => {{
+      [btnMix, btnManual].forEach(b => {{
         if (b) b.className = 'arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition';
       }});
 
-      if (mode === 'sing') {{
-        if (btnSing) btnSing.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900 transition';
-        if (card) card.classList.remove('hidden');
-        showToast("🎤 떼창 모드 ON! (가사를 보며 다 함께 떼창!)");
-        if (bgm.paused) bgm.play();
-      }} else if (mode === 'automix') {{
+      if (mode === 'automix') {{
         if (btnMix) btnMix.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonCyan text-black shadow-md border-b-cyan-700 transition';
-        showToast("⚡️ 30초 믹싱 ON! (끝나면 다음 라운드로 즉시 자동 믹싱)");
-        if (bgm.paused) bgm.play();
+        showToast("⚡️ 30초 자동믹싱 ON! (끝나면 다음 라운드로 즉시 자동 전환)");
+        if (bgm && bgm.paused) bgm.play();
+      }} else if (mode === 'manual') {{
+        if (btnManual) btnManual.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPurple text-white shadow-[0_0_12px_rgba(168,85,247,0.5)] border-b-purple-900 transition';
+        showToast("⏸ 수동 믹싱 ON! (곡이 끝나면 대기하며 직접 다음 곡을 넘깁니다)");
       }}
     }}
 
@@ -1231,23 +1227,6 @@ html_content = f'''<!DOCTYPE html>
       }}
     }}
 
-    // Toggle Sing-Along Lyrics Card
-    function toggleSingAlongMode() {{
-      soundEngine.playScratch();
-      const card = document.getElementById('singAlongCard');
-      const btn = document.getElementById('modeBtnSing');
-      state.singAlongVisible = !state.singAlongVisible;
-
-      if (state.singAlongVisible) {{
-        if (card) card.classList.remove('hidden');
-        if (btn) btn.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonPink text-white shadow-[0_0_12px_rgba(236,72,153,0.5)] border-b-pink-900 transition';
-        showToast("🎤 떼창 가사 표시 ON!");
-      }} else {{
-        if (card) card.classList.add('hidden');
-        if (btn) btn.className = 'arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition';
-        showToast("떼창 가사를 접었습니다.");
-      }}
-    }}
 
     // Direct Spotify 1-Tap Launcher
     function openSpotifyDirect() {{
@@ -1409,14 +1388,10 @@ html_content = f'''<!DOCTYPE html>
       document.getElementById('ruleStep2').textContent = mission.steps[1];
       document.getElementById('ruleStep3').textContent = mission.steps[2];
 
-      // Update Sing-Along Lyrics Card
-      const lyricsEl = document.getElementById('singAlongLyrics');
-      if (lyricsEl) {{
-        lyricsEl.textContent = track.lyrics || `"${{track.title}}의 가장 신나는 킬링파트를 다 함께 떼창해보세요! 🍻"`;
-      }}
-      const lyricsSearch = document.getElementById('lyricsSearchLink');
-      if (lyricsSearch) {{
-        lyricsSearch.href = `https://search.naver.com/search.naver?query=${{encodeURIComponent(track.artist + ' ' + track.title + ' 가사')}}`;
+      // Update DJ Track Note (곡 한줄 설명)
+      const noteEl = document.getElementById('djTrackNoteText');
+      if (noteEl) {{
+        noteEl.textContent = track.description || `"${{track.artist}} - ${{track.title}}: 분위기를 띄우는 신나는 비트! 🍻"`;
       }}
 
       // Synchronize 30s background audio
@@ -1431,7 +1406,7 @@ html_content = f'''<!DOCTYPE html>
           setVinylSpinning(true);
           const icon = document.getElementById('deskPlayIcon');
           if (icon) icon.textContent = '⏸';
-          const modeLabels = {{ 'sing': '🎤 떼창 모드', 'automix': '⚡️ 30초 믹싱' }};
+          const modeLabels = {{ 'automix': '⚡️ 30초 믹싱', 'manual': '⏸ 수동 모드' }};
           document.getElementById('audioStatusText').textContent = modeLabels[state.playMode] || '비트 스트리밍';
         }}).catch(err => {{
           console.warn("Audio play blocked:", err);
@@ -1525,12 +1500,17 @@ html_content = f'''<!DOCTYPE html>
       }}
     }}
 
-    // Auto next when audio ends (handles 30s automix)
+    // Auto next when audio ends (handles 30s automix or manual mode)
     bgm.addEventListener('ended', () => {{
       if (state.playMode === 'automix') {{
         soundEngine.playScratch();
         showToast("⚡️ 30초 믹싱: 다음 라운드로 자동 전환!");
         generateNewRound();
+      }} else {{
+        setVinylSpinning(false);
+        const icon = document.getElementById('deskPlayIcon');
+        if (icon) icon.textContent = '▶';
+        document.getElementById('audioStatusText').textContent = '재생 완료 (대기 중)';
       }}
     }});
 
