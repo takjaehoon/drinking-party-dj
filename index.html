@@ -849,7 +849,7 @@
 
   </div>
 
-  <!-- IN-APP YOUTUBE MINI PLAYER (완곡 풀버전 인앱 플레이어) -->
+  <!-- IN-APP YOUTUBE & SPOTIFY MINI PLAYER (완곡 풀버전 인앱 플레이어) -->
   <div id="inAppYtPlayer" class="hidden fixed bottom-2 left-1/2 -translate-x-1/2 w-[95%] max-w-md z-50 transition-all duration-300">
     
     <!-- Collapsed / Mini Bar View (하단 미니 플레이어 바) -->
@@ -865,7 +865,7 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-            <span class="text-[9px] font-black text-red-400 tracking-wider">YOUTUBE FULL TRACK</span>
+            <span class="text-[9px] font-black text-red-400 tracking-wider">FULL TRACK PLAYER</span>
           </div>
           <h4 id="ytMiniTitle" class="text-xs font-black text-white truncate">곡 제목</h4>
           <p id="ytMiniArtist" class="text-[10px] text-zinc-300 truncate">아티스트명</p>
@@ -873,83 +873,150 @@
       </div>
 
       <div class="flex items-center space-x-1.5 shrink-0 ml-2">
+        <!-- Spotify Quick Button -->
+        <button onclick="openSpotifyApp()" class="arcade-btn py-1.5 px-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-spotifyGreen border border-emerald-700 border-b-emerald-950 text-xs font-black flex items-center space-x-1" title="스포티파이 앱으로 광고 없이 완곡 재생">
+          <span>🟢</span>
+          <span class="hidden sm:inline">Spotify</span>
+        </button>
         <!-- Expand / Collapse Button -->
         <button onclick="toggleYtPlayerExpand()" class="arcade-btn py-1.5 px-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-600 border-b-zinc-950 text-xs font-black" title="플레이어 화면 열기/닫기">
           <span id="ytExpandIcon">▲ 영상</span>
         </button>
         <!-- Close Mini Player Button -->
-        <button onclick="closeInAppYtPlayer()" class="arcade-btn p-1.5 rounded-xl bg-red-950/90 hover:bg-red-900 text-red-200 border border-red-700 border-b-red-950 text-xs font-black" title="유튜브 플레이어 닫기">
+        <button onclick="closeInAppYtPlayer()" class="arcade-btn p-1.5 rounded-xl bg-red-950/90 hover:bg-red-900 text-red-200 border border-red-700 border-b-red-950 text-xs font-black" title="완곡 플레이어 닫고 30초 비트로 복귀">
           ✕
         </button>
       </div>
     </div>
 
-    <!-- Expanded Theater / Lyrics View (확장 가사/MV 뷰) -->
-    <div id="ytExpandedView" class="hidden mt-1.5 bg-zinc-950/98 backdrop-blur-2xl border-2 border-red-600/80 rounded-2xl p-3 shadow-2xl space-y-2">
-      <div class="flex items-center justify-between pb-1.5 border-b border-zinc-800">
-        <div class="flex items-center space-x-1.5">
-          <span class="text-base text-red-500">📺</span>
-          <span class="text-xs font-black text-white">유튜브 완곡 인앱 플레이어</span>
+    <!-- Expanded Theater / Lyrics / Spotify View -->
+    <div id="ytExpandedView" class="hidden mt-1.5 bg-zinc-950/98 backdrop-blur-2xl border-2 border-red-600/80 rounded-2xl p-3 shadow-2xl space-y-2.5">
+      
+      <!-- Top Bar: Segmented Switcher & Controls -->
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+        <!-- Tab Switcher: YouTube vs Spotify -->
+        <div class="flex items-center bg-zinc-900 p-1 rounded-xl border border-zinc-800 space-x-1">
+          <button id="tabBtnYt" onclick="switchPlayerTab('youtube')" class="px-2.5 py-1 rounded-lg text-xs font-black bg-red-600 text-white shadow-[0_0_10px_rgba(239,68,68,0.4)] transition flex items-center space-x-1">
+            <span>📺</span>
+            <span>YouTube (MV·가사)</span>
+          </button>
+          <button id="tabBtnSpotify" onclick="switchPlayerTab('spotify')" class="px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>🟢</span>
+            <span>Spotify (무광고)</span>
+          </button>
         </div>
+
+        <!-- Action / Collapse buttons -->
         <div class="flex items-center space-x-1.5">
-          <button onclick="openMiniPopupWindow()" class="text-[10px] font-bold text-zinc-300 hover:text-white px-2 py-0.5 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center space-x-1" title="독립 미니 팝업창으로 열기">
+          <button onclick="openMiniPopupWindow()" class="text-[10px] font-bold text-zinc-300 hover:text-white px-2 py-1 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center space-x-1" title="독립 미니 팝업창으로 열기">
             <span>🪟 팝업</span>
           </button>
-          <button onclick="openExternalFromMini()" class="text-[10px] font-bold text-red-300 hover:text-white px-2 py-0.5 rounded-lg bg-red-950 border border-red-800 flex items-center space-x-1" title="유튜브 앱 새 창으로 열기">
-            <span>↗ YT 앱</span>
-          </button>
-          <button onclick="toggleYtPlayerExpand()" class="arcade-btn text-zinc-300 hover:text-white text-xs font-black px-2 py-0.5 rounded-lg bg-zinc-800 border border-zinc-700">
+          <button onclick="toggleYtPlayerExpand()" class="arcade-btn text-zinc-300 hover:text-white text-xs font-black px-2 py-1 rounded-lg bg-zinc-800 border border-zinc-700">
             ▼ 접기
           </button>
         </div>
       </div>
 
-      <!-- Protocol Notice (Shows only if opened via file:// to prevent confusion) -->
-      <div id="ytProtocolNotice" class="hidden p-2 rounded-xl bg-amber-950/90 border border-amber-500/70 text-amber-200 text-xs space-y-1">
-        <div class="flex items-center justify-between font-bold text-amber-300">
-          <span class="flex items-center space-x-1"><span>⚠️</span> <span>로컬 파일(file://) 실행 감지</span></span>
-          <span class="text-[10px] bg-amber-900/80 px-1.5 py-0.5 rounded text-amber-200">오류 153 방지</span>
-        </div>
-        <p class="text-[10.5px] text-amber-100/90 leading-snug">
-          유튜브 보안 정책상 로컬 파일에서는 영상이 차단됩니다. 아래 <strong>온라인 웹 링크</strong>로 열면 100% 정상 작동합니다!
-        </p>
-        <div class="flex items-center space-x-2 pt-0.5">
-          <a href="https://takjaehoon.github.io/drinking-party-dj/" target="_blank" class="arcade-btn px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs inline-flex items-center space-x-1 shadow">
-            <span>🌐 온라인 공식 웹 열기</span>
-          </a>
-          <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs">
-            🪟 팝업창으로 바로 듣기
-          </button>
-        </div>
-      </div>
-
-      <!-- 16:9 Iframe Container -->
-      <div class="w-full aspect-video rounded-xl overflow-hidden bg-black border border-zinc-800 shadow-inner relative">
-        <iframe id="inAppYtIframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      </div>
-
-      <!-- 1-Click Fallback Bar for Error 153 or Restricted Videos -->
-      <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-red-950/40 border border-red-800/60">
-        <div class="min-w-0 flex-1 text-[11px] text-zinc-300">
-          <div class="font-bold text-red-300 flex items-center space-x-1">
-            <span>🚨 혹시 영상에 오류 153이 뜨나요?</span>
+      <!-- TAB 1: YOUTUBE CONTENT -->
+      <div id="playerTabYtContent" class="space-y-2">
+        <!-- Protocol Notice (Shows only if opened via file:// to prevent Error 153) -->
+        <div id="ytProtocolNotice" class="hidden p-2 rounded-xl bg-amber-950/90 border border-amber-500/70 text-amber-200 text-xs space-y-1">
+          <div class="flex items-center justify-between font-bold text-amber-300">
+            <span class="flex items-center space-x-1"><span>⚠️</span> <span>로컬 파일(file://) 실행 감지</span></span>
+            <span class="text-[10px] bg-amber-900/80 px-1.5 py-0.5 rounded text-amber-200">오류 153 방지</span>
           </div>
-          <div class="text-[10px] text-zinc-400 truncate">브라우저 차단 시 1초 만에 바로 듣기:</div>
+          <p class="text-[10.5px] text-amber-100/90 leading-snug">
+            유튜브 보안 정책상 로컬 파일에서는 영상이 차단됩니다. 아래 <strong>온라인 공식 웹</strong>으로 열면 100% 정상 작동합니다!
+          </p>
+          <div class="flex items-center space-x-2 pt-0.5">
+            <a href="https://takjaehoon.github.io/drinking-party-dj/" target="_blank" class="arcade-btn px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs inline-flex items-center space-x-1 shadow">
+              <span>🌐 온라인 공식 웹 열기</span>
+            </a>
+            <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs">
+              🪟 팝업창 재생
+            </button>
+          </div>
         </div>
-        <div class="flex items-center space-x-1.5 shrink-0">
-          <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold" title="미니 팝업창으로 재생">
-            🪟 팝업
-          </button>
-          <button onclick="openExternalFromMini()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-black shadow-[0_0_10px_rgba(239,68,68,0.5)]" title="유튜브 공식 앱/웹에서 바로 재생">
-            ▶ YouTube 앱
-          </button>
+
+        <!-- 16:9 Iframe Container -->
+        <div class="w-full aspect-video rounded-xl overflow-hidden bg-black border border-zinc-800 shadow-inner relative">
+          <iframe id="inAppYtIframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+
+        <!-- 1-Click Fallback & Ad Bypass Bar -->
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-red-950/40 border border-red-800/60">
+          <div class="min-w-0 flex-1 text-[11px] text-zinc-300">
+            <div class="font-bold text-red-300 flex items-center space-x-1">
+              <span>⚡️ 유튜브 광고가 번거로우신가요?</span>
+            </div>
+            <div class="text-[10px] text-zinc-400 truncate">앱으로 열면 유튜브 프리미엄 무광고 적용:</div>
+          </div>
+          <div class="flex items-center space-x-1.5 shrink-0">
+            <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold" title="미니 팝업창으로 재생">
+              🪟 팝업
+            </button>
+            <button onclick="openExternalFromMini()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-black shadow-[0_0_10px_rgba(239,68,68,0.5)]" title="유튜브 공식 앱/웹에서 바로 재생">
+              ▶ YouTube 앱
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-between text-[10px] text-zinc-400 pt-0.5">
+      <!-- TAB 2: SPOTIFY AD-FREE CONTENT -->
+      <div id="playerTabSpotifyContent" class="hidden space-y-3 p-3 rounded-2xl bg-zinc-900/95 border border-emerald-500/40 shadow-inner">
+        <div class="flex items-center space-x-3">
+          <img id="spTabCover" src="" class="w-16 h-16 rounded-xl object-cover border border-emerald-500/60 shadow shrink-0" />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-1.5">
+              <span class="text-[10px] bg-emerald-950 text-spotifyGreen border border-emerald-700 px-2 py-0.5 rounded-full font-black">
+                🟢 SPOTIFY HIGH-FIDELITY
+              </span>
+              <span class="text-[10px] bg-black/40 text-emerald-300 px-1.5 py-0.5 rounded font-bold">100% 무광고</span>
+            </div>
+            <h4 id="spTabTitle" class="text-sm font-black text-white truncate mt-1">곡 제목</h4>
+            <p id="spTabArtist" class="text-xs text-zinc-300 truncate">아티스트명</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <!-- Spotify App 1-Click Launch -->
+          <button onclick="openSpotifyApp()" class="arcade-btn w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-400 hover:to-green-500 text-black font-black text-xs flex items-center justify-between shadow-[0_0_15px_rgba(29,185,84,0.4)] border-b-2 border-b-green-950 transition">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">🟢</span>
+              <div class="text-left">
+                <div class="font-black text-xs">Spotify 앱에서 완곡 바로 재생</div>
+                <div class="text-[9.5px] text-zinc-800 font-semibold">스포티파이 프리미엄 이용 시 광고 0초 즉시 스트리밍</div>
+              </div>
+            </div>
+            <span class="text-[10px] bg-black/25 text-white px-2 py-1 rounded-md font-bold">앱 실행 ↗</span>
+          </button>
+
+          <!-- Spotify Web Popup -->
+          <button onclick="openSpotifyWebPopup()" class="arcade-btn w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs flex items-center justify-between border border-zinc-700">
+            <div class="flex items-center space-x-2">
+              <span>🪟</span>
+              <span>스포티파이 웹 플레이어 미니 팝업창</span>
+            </div>
+            <span class="text-[10px] bg-zinc-900 px-2 py-0.5 rounded text-zinc-300">팝업</span>
+          </button>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-black/50 border border-zinc-800 text-[10.5px] text-zinc-400 space-y-1">
+          <div class="text-emerald-400 font-bold flex items-center space-x-1">
+            <span>💡</span>
+            <span>스포티파이 무광고 완곡 팁</span>
+          </div>
+          <p class="leading-relaxed">
+            스포티파이 계정을 사용 중이시라면, <strong>[Spotify 앱에서 완곡 바로 재생]</strong>을 누르시면 유튜브 비디오 광고 없이 가장 깨끗하고 끊김 없는 원음 완곡을 감상하실 수 있습니다!
+          </p>
+        </div>
+      </div>
+
+      <!-- Bottom Status & Close -->
+      <div class="flex items-center justify-between text-[10px] text-zinc-400 pt-1 border-t border-zinc-800/80">
         <span>💡 화면을 아래로 접어도 소리는 계속 재생됩니다!</span>
         <button onclick="closeInAppYtPlayer()" class="text-red-400 hover:text-red-300 font-bold">
-          플레이어 닫기 ✕
+          플레이어 닫고 30초 비트로 복귀 ✕
         </button>
       </div>
     </div>
@@ -1933,6 +2000,7 @@
       strobeOn: false,
       ytActive: false,
       ytExpanded: false,
+      playerTab: 'youtube', // 'youtube' or 'spotify'
       history: [],
       historyIdx: -1
     };
@@ -2021,17 +2089,17 @@
         if (btnLoop) btnLoop.className = 'px-2 py-1 rounded-lg font-bold bg-neonOrange text-black shadow transition';
         bgm.loop = true;
         showToast("🔂 무한루프 ON! (비트 끊김없이 계속 재생)");
-        if (bgm.paused) bgm.play();
+        if (bgm.paused && !state.ytActive) bgm.play();
       } else if (mode === 'extended') {
         if (btnExt) btnExt.className = 'px-2 py-1 rounded-lg font-bold bg-purple-500 text-black shadow transition';
         bgm.loop = false;
         showToast("⏱ 60초 익스텐디드 ON! (2절 루프 후 자동 전환)");
-        if (bgm.paused) bgm.play();
+        if (bgm.paused && !state.ytActive) bgm.play();
       } else if (mode === 'automix') {
         if (btnMix) btnMix.className = 'px-2 py-1 rounded-lg font-bold bg-neonCyan text-black shadow transition';
         bgm.loop = false;
         showToast("⚡️ 30초 믹싱 ON! (끝나면 다음 곡 즉시 전환)");
-        if (bgm.paused) bgm.play();
+        if (bgm.paused && !state.ytActive) bgm.play();
       }
     }
 
@@ -2126,7 +2194,7 @@
       document.getElementById('fullTrackModal').classList.add('hidden');
     }
 
-    // In-App YouTube Mini Player logic
+    // In-App YouTube & Spotify Mini Player logic
     function openInAppYtPlayer() {
       if (state.historyIdx < 0 || !state.history[state.historyIdx]) return;
       const cur = state.history[state.historyIdx];
@@ -2147,8 +2215,39 @@
       if (playerBox) playerBox.classList.remove('hidden');
       updateYtPlayerViewState();
 
-      document.getElementById('audioStatusText').textContent = '📺 유튜브 완곡 재생 중';
-      showToast(`📺 [${cur.track.title}] 유튜브 완곡 인앱 플레이어 시작!`);
+      document.getElementById('audioStatusText').textContent = '📺 완곡 플레이어 재생 중';
+      showToast(`📺 [${cur.track.title}] 완곡 인앱 플레이어 시작!`);
+    }
+
+    function switchPlayerTab(tab) {
+      soundEngine.playScratch();
+      state.playerTab = tab; // 'youtube' or 'spotify'
+      const ytTabBtn = document.getElementById('tabBtnYt');
+      const spTabBtn = document.getElementById('tabBtnSpotify');
+      const ytContent = document.getElementById('playerTabYtContent');
+      const spContent = document.getElementById('playerTabSpotifyContent');
+
+      if (tab === 'spotify') {
+        if (ytTabBtn) ytTabBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center space-x-1';
+        if (spTabBtn) spTabBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-black bg-spotifyGreen text-black shadow-[0_0_10px_rgba(29,185,84,0.4)] transition flex items-center space-x-1';
+        if (ytContent) ytContent.classList.add('hidden');
+        if (spContent) spContent.classList.remove('hidden');
+        // Pause YouTube iframe if playing to prevent sound clash
+        const iframe = document.getElementById('inAppYtIframe');
+        if (iframe && iframe.src) {
+          iframe.src = iframe.src.replace('autoplay=1', 'autoplay=0');
+        }
+        showToast("🟢 Spotify 무광고 완곡 모드로 전환되었습니다.");
+      } else {
+        if (ytTabBtn) ytTabBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-black bg-red-600 text-white shadow-[0_0_10px_rgba(239,68,68,0.4)] transition flex items-center space-x-1';
+        if (spTabBtn) spTabBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center space-x-1';
+        if (ytContent) ytContent.classList.remove('hidden');
+        if (spContent) spContent.classList.add('hidden');
+        // Reload YouTube iframe with autoplay
+        if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+          updateInAppYtVideo(state.history[state.historyIdx].track);
+        }
+      }
     }
 
     function updateInAppYtVideo(track) {
@@ -2158,10 +2257,20 @@
       const coverEl = document.getElementById('ytMiniCover');
       const noticeEl = document.getElementById('ytProtocolNotice');
 
+      // Update Mini Bar Info
       if (titleEl) titleEl.textContent = track.title;
       if (artistEl) artistEl.textContent = track.artist;
       if (coverEl && track.artwork) coverEl.src = track.artwork;
 
+      // Update Spotify Tab Info
+      const spTitle = document.getElementById('spTabTitle');
+      const spArtist = document.getElementById('spTabArtist');
+      const spCover = document.getElementById('spTabCover');
+      if (spTitle) spTitle.textContent = track.title;
+      if (spArtist) spArtist.textContent = track.artist;
+      if (spCover && track.artwork) spCover.src = track.artwork;
+
+      // Protocol check for local file://
       const isFile = (window.location.protocol === 'file:');
       if (noticeEl) {
         if (isFile) {
@@ -2171,14 +2280,64 @@
         }
       }
 
+      // Standard YouTube Embed without enablejsapi to avoid Error 153 handshake
       const ytId = track.youtubeId || 'vjl_uRTeOfU';
-      if (iframe) {
+      if (iframe && state.playerTab !== 'spotify') {
         let originParam = '';
         if (!isFile && window.location.origin && window.location.origin !== 'null') {
           originParam = `&origin=${encodeURIComponent(window.location.origin)}`;
         }
-        // Standard youtube.com embed with playsinline, rel=0, without enablejsapi to avoid Error 153 config handshake
         iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0${originParam}`;
+      }
+    }
+
+    function openSpotifyApp() {
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        const cur = state.history[state.historyIdx];
+        const query = encodeURIComponent(`${cur.track.artist} ${cur.track.title}`);
+        
+        // Pause local preview so music does not clash
+        const bgm = document.getElementById('realBgmAudio');
+        if (bgm && !bgm.paused) {
+          bgm.pause();
+          setVinylSpinning(false);
+        }
+        soundEngine.playAirhorn();
+
+        showToast(`🟢 Spotify 앱으로 [${cur.track.title}] 완곡을 엽니다! (광고 없음)`);
+        
+        // Native Spotify URI for 1-tap app launch
+        const spotifyUri = `spotify:search:${query}`;
+        const spotifyWeb = `https://open.spotify.com/search/${query}`;
+        
+        // Try native URI first
+        window.location.href = spotifyUri;
+        setTimeout(() => {
+          // Fallback if needed
+        }, 800);
+      }
+    }
+
+    function openSpotifyWebPopup() {
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        const cur = state.history[state.historyIdx];
+        const query = encodeURIComponent(`${cur.track.artist} ${cur.track.title}`);
+        
+        // Pause local preview so music does not clash
+        const bgm = document.getElementById('realBgmAudio');
+        if (bgm && !bgm.paused) {
+          bgm.pause();
+          setVinylSpinning(false);
+        }
+        soundEngine.playAirhorn();
+
+        showToast(`🟢 Spotify 웹 플레이어로 [${cur.track.title}] 완곡을 엽니다!`);
+        const url = `https://open.spotify.com/search/${query}`;
+        const w = 480;
+        const h = 620;
+        const left = Math.max(0, Math.round((screen.width - w) / 2));
+        const top = Math.max(0, Math.round((screen.height - h) / 2));
+        window.open(url, 'DJ_SPOTIFY_PLAYER', `width=${w},height=${h},left=${left},top=${top},menubar=no,status=no,toolbar=no`);
       }
     }
 
@@ -2213,6 +2372,7 @@
       }
     }
 
+    // FIX: Perfectly sync audio and title when returning to 30s mode
     function closeInAppYtPlayer() {
       soundEngine.playScratch();
       state.ytActive = false;
@@ -2221,13 +2381,28 @@
       if (playerBox) playerBox.classList.add('hidden');
       if (iframe) iframe.src = '';
 
-      // Resume DJ background BGM
-      const bgm = document.getElementById('realBgmAudio');
-      if (bgm && bgm.src) {
-        bgm.play().then(() => setVinylSpinning(true)).catch(() => {});
-        document.getElementById('audioStatusText').textContent = '비트 스트리밍';
+      // Resume DJ background BGM with the exact current round track!
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        const curTrack = state.history[state.historyIdx].track;
+        const bgm = document.getElementById('realBgmAudio');
+        if (bgm && curTrack.audioUrl) {
+          if (bgm.src !== curTrack.audioUrl) {
+            bgm.src = curTrack.audioUrl;
+          }
+          bgm.currentTime = 0; // Fresh start from beat drop!
+          bgm.loop = (state.playMode === 'loop');
+          bgm.play().then(() => {
+            setVinylSpinning(true);
+            const modeLabels = { 'loop': '🔂 30초 무한루프', 'extended': '⏱ 60초 익스텐디드', 'automix': '⚡️ 30초 믹싱' };
+            document.getElementById('audioStatusText').textContent = modeLabels[state.playMode] || '비트 스트리밍';
+          }).catch(err => {
+            console.warn("Audio resume error:", err);
+            document.getElementById('audioStatusText').textContent = "▶ 터치하여 재생";
+            setVinylSpinning(false);
+          });
+        }
       }
-      showToast('유튜브 완곡 플레이어를 닫고 DJ 비트로 복귀했습니다.');
+      showToast('완곡 플레이어를 닫고 30초 DJ 비트로 복귀했습니다!');
     }
 
     function openExternalFromMini() {
@@ -2262,8 +2437,8 @@
           targetUrl = `https://music.youtube.com/search?q=${query}`;
           showToast(`🔴 YT Music에서 [${cur.track.title}] 완곡을 엽니다! (미리듣기는 일시정지)`);
         } else if (service === 'spotify') {
-          targetUrl = `https://open.spotify.com/search/${query}`;
-          showToast(`🟢 Spotify에서 [${cur.track.title}] 완곡을 엽니다! (미리듣기는 일시정지)`);
+          openSpotifyApp();
+          return;
         }
 
         if (targetUrl) {
@@ -2395,15 +2570,22 @@
       document.getElementById('ruleStep2').textContent = mission.steps[1];
       document.getElementById('ruleStep3').textContent = mission.steps[2];
 
-      // Native Audio Playback vs In-App YouTube Video
+      // ALWAYS keep background audio element synchronized with current round track!
+      const bgm = document.getElementById('realBgmAudio');
+      if (bgm && track.audioUrl) {
+        if (bgm.src !== track.audioUrl) {
+          bgm.src = track.audioUrl;
+        }
+        bgm.currentTime = 0;
+        bgm.loop = (state.playMode === 'loop');
+      }
+
+      // Native Audio Playback vs In-App Full Player
       if (state.ytActive) {
         updateInAppYtVideo(track);
-        document.getElementById('audioStatusText').textContent = '📺 유튜브 완곡 재생 중';
+        document.getElementById('audioStatusText').textContent = '📺 완곡 플레이어 재생 중';
       } else {
-        const bgm = document.getElementById('realBgmAudio');
-        if (track.audioUrl) {
-          bgm.src = track.audioUrl;
-          bgm.loop = (state.playMode === 'loop');
+        if (bgm && track.audioUrl) {
           bgm.play().then(() => {
             setVinylSpinning(true);
             const modeLabels = { 'loop': '🔂 30초 무한루프', 'extended': '⏱ 60초 익스텐디드', 'automix': '⚡️ 30초 믹싱' };
@@ -2443,6 +2625,10 @@
 
     // Play/Pause Toggle
     function togglePlayPause() {
+      if (state.ytActive) {
+        closeInAppYtPlayer();
+        return;
+      }
       const bgm = document.getElementById('realBgmAudio');
       if (bgm.paused) {
         bgm.play();
