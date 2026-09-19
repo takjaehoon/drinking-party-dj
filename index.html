@@ -141,9 +141,33 @@
     .strobe-active-glow {
       box-shadow: 0 0 60px rgba(236, 72, 153, 0.8), inset 0 0 35px rgba(168, 85, 247, 0.6) !important;
     }
+
+    /* Real High-End Club Crowd & Laser Stage Backdrop */
+    .club-stage-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: 
+        radial-gradient(ellipse at 50% 25%, rgba(7, 8, 12, 0.4) 0%, rgba(7, 8, 12, 0.72) 60%, #07080c 100%),
+        linear-gradient(to bottom, rgba(7, 8, 12, 0.35) 0%, rgba(7, 8, 12, 0.25) 35%, rgba(7, 8, 12, 0.88) 85%, #07080c 100%),
+        url('./assets/club_crowd_bg.jpg');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      pointer-events-none;
+      animation: clubLaserPulse 3.5s ease-in-out infinite alternate;
+    }
+    @keyframes clubLaserPulse {
+      0%, 100% { filter: brightness(0.95) contrast(1.05); }
+      50% { filter: brightness(1.22) contrast(1.15); }
+    }
+
   </style>
 </head>
-<body class="club-mesh-bg min-h-screen flex flex-col items-center justify-start p-2.5 sm:p-5 select-none transition-all duration-300">
+<body class="club-mesh-bg min-h-screen flex flex-col items-center justify-start p-2.5 sm:p-5 select-none transition-all duration-300 relative">
+
+  <!-- 🌟 High-Definition Cinematic Club Crowd & Laser Stage Backdrop -->
+  <div class="club-stage-backdrop"></div>
 
   <!-- Native Background Audio Player -->
   <audio id="realBgmAudio" preload="auto"></audio>
@@ -613,44 +637,26 @@
         </div>
       </div>
 
-            <!-- 🎧 DUAL TRACK CARDS: [LEFT] DJ TRACK NOTE | [RIGHT] 떼창 포인트 -->
-      <div class="grid grid-cols-2 gap-2">
-        
-        <!-- LEFT: DJ TRACK NOTE (한줄 설명 / 술자리 가이드) -->
-        <div id="djTrackNoteCard" class="bg-gradient-to-b from-purple-950/90 via-zinc-900/90 to-zinc-950 border border-neonPurple/70 rounded-2xl p-2.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] flex flex-col justify-between space-y-1.5 transition duration-300">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-1">
-              <span class="text-xs">🎧</span>
-              <span class="text-[10.5px] font-black tracking-tight text-purple-300">DJ TRACK NOTE</span>
-            </div>
-            <span class="text-[8.5px] px-1.5 py-0.2 rounded-full bg-purple-900/70 text-purple-200 border border-purple-500/50 font-bold">NOTE</span>
+                  <!-- 🎧 DJ TRACK NOTE (곡 한줄 설명 / 술자리 가이드 카드) -->
+      <div id="djTrackNoteCard" class="bg-gradient-to-r from-purple-950/90 via-zinc-900/90 to-zinc-950 border-2 border-neonPurple/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(168,85,247,0.35)] space-y-1.5 transition duration-300">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-sm animate-pulse">🎧</span>
+            <span class="text-xs font-black tracking-wider text-purple-300">DJ TRACK NOTE (한줄 설명)</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-900/60 text-purple-200 border border-purple-500/40 font-bold">DJ PICK</span>
           </div>
-          <div id="djTrackNoteText" class="text-[11px] sm:text-xs font-bold text-zinc-100 text-center leading-relaxed py-2 px-1.5 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner flex-1 flex items-center justify-center min-h-[56px]">
-            "DJ 추천 코멘트 불러오는 중..."
-          </div>
-          <div class="flex items-center justify-center text-[9px] text-purple-300/80 font-medium">
-            <span>🍻 술자리 분위기 맞춤 가이드</span>
-          </div>
+          <button onclick="openSpotifyDirect()" class="text-[10px] font-black text-spotifyGreen hover:text-emerald-300 flex items-center space-x-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-700/60 transition" title="스포티파이에서 완곡 듣기">
+            <span>🟢 Spotify 완곡</span>
+            <span>↗</span>
+          </button>
         </div>
-
-        <!-- RIGHT: 떼창 포인트 (킬링파트 가사) -->
-        <div id="singAlongCard" class="bg-gradient-to-b from-pink-950/90 via-zinc-900/90 to-zinc-950 border border-neonPink/70 rounded-2xl p-2.5 shadow-[0_0_15px_rgba(236,72,153,0.3)] flex flex-col justify-between space-y-1.5 transition duration-300">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-1">
-              <span class="text-xs animate-bounce">🎤</span>
-              <span class="text-[10.5px] font-black tracking-tight text-pink-300">떼창 포인트</span>
-            </div>
-            <span class="text-[8.5px] px-1.5 py-0.2 rounded-full bg-pink-900/70 text-pink-200 border border-pink-500/50 font-bold">SING</span>
-          </div>
-          <div id="singAlongLyrics" class="text-[11px] sm:text-xs font-black text-white text-center leading-relaxed py-2 px-1.5 bg-black/60 rounded-xl border border-pink-500/30 shadow-inner flex-1 flex items-center justify-center min-h-[56px]">
-            "가사 불러오는 중..."
-          </div>
-          <div class="flex items-center justify-between text-[9px] text-pink-300/80 px-0.5 font-medium">
-            <span>다 함께 떼창 🎶</span>
-            <a id="lyricsSearchLink" href="#" target="_blank" class="hover:text-white underline text-zinc-400">가사 전문 ↗</a>
-          </div>
+        <div id="djTrackNoteText" class="text-xs sm:text-sm font-bold text-zinc-100 text-center leading-relaxed tracking-wide py-2.5 px-3 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner">
+          "DJ 추천 코멘트 불러오는 중..."
         </div>
-
+        <div class="flex items-center justify-between text-[9.5px] text-zinc-400 px-1 pt-0.5">
+          <span>🍻 이 곡에 어울리는 술자리 바이브를 즐겨보세요!</span>
+          <span class="text-purple-300/90 font-semibold">술자리 맞춤 BGM 🎶</span>
+        </div>
       </div>
 
       <!-- DJ LIVE FX LAUNCHPAD (4-PAD INTERACTIVE SOUNDBOARD) -->
@@ -3602,20 +3608,10 @@
       document.getElementById('ruleStep2').textContent = mission.steps[1];
       document.getElementById('ruleStep3').textContent = mission.steps[2];
 
-      // 1. Update DJ Track Note (Left)
+      // Update DJ Track Note (곡 한줄 설명)
       const noteEl = document.getElementById('djTrackNoteText');
       if (noteEl) {
         noteEl.textContent = track.description || `"${track.artist} - ${track.title}: 분위기를 띄우는 신나는 비트! 🍻"`;
-      }
-
-      // 2. Update Sing-Along Lyrics (Right)
-      const lyricsEl = document.getElementById('singAlongLyrics');
-      if (lyricsEl) {
-        lyricsEl.textContent = track.lyrics || `"${track.title}의 가장 신나는 킬링파트를 다 함께 떼창해보세요! 🍻"`;
-      }
-      const lyricsSearch = document.getElementById('lyricsSearchLink');
-      if (lyricsSearch) {
-        lyricsSearch.href = `https://search.naver.com/search.naver?query=${encodeURIComponent(track.artist + ' ' + track.title + ' 가사')}`;
       }
 
       // Synchronize 30s background audio
