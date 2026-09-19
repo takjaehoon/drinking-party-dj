@@ -10,6 +10,7 @@ html_content = f'''<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>술자리 AI DJ · 프로 에디션</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -898,6 +899,9 @@ html_content = f'''<!DOCTYPE html>
           <span class="text-xs font-black text-white">유튜브 완곡 인앱 플레이어</span>
         </div>
         <div class="flex items-center space-x-1.5">
+          <button onclick="openMiniPopupWindow()" class="text-[10px] font-bold text-zinc-300 hover:text-white px-2 py-0.5 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center space-x-1" title="독립 미니 팝업창으로 열기">
+            <span>🪟 팝업</span>
+          </button>
           <button onclick="openExternalFromMini()" class="text-[10px] font-bold text-red-300 hover:text-white px-2 py-0.5 rounded-lg bg-red-950 border border-red-800 flex items-center space-x-1" title="유튜브 앱 새 창으로 열기">
             <span>↗ YT 앱</span>
           </button>
@@ -907,9 +911,46 @@ html_content = f'''<!DOCTYPE html>
         </div>
       </div>
 
+      <!-- Protocol Notice (Shows only if opened via file:// to prevent confusion) -->
+      <div id="ytProtocolNotice" class="hidden p-2 rounded-xl bg-amber-950/90 border border-amber-500/70 text-amber-200 text-xs space-y-1">
+        <div class="flex items-center justify-between font-bold text-amber-300">
+          <span class="flex items-center space-x-1"><span>⚠️</span> <span>로컬 파일(file://) 실행 감지</span></span>
+          <span class="text-[10px] bg-amber-900/80 px-1.5 py-0.5 rounded text-amber-200">오류 153 방지</span>
+        </div>
+        <p class="text-[10.5px] text-amber-100/90 leading-snug">
+          유튜브 보안 정책상 로컬 파일에서는 영상이 차단됩니다. 아래 <strong>온라인 웹 링크</strong>로 열면 100% 정상 작동합니다!
+        </p>
+        <div class="flex items-center space-x-2 pt-0.5">
+          <a href="https://takjaehoon.github.io/drinking-party-dj/" target="_blank" class="arcade-btn px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs inline-flex items-center space-x-1 shadow">
+            <span>🌐 온라인 공식 웹 열기</span>
+          </a>
+          <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs">
+            🪟 팝업창으로 바로 듣기
+          </button>
+        </div>
+      </div>
+
       <!-- 16:9 Iframe Container -->
       <div class="w-full aspect-video rounded-xl overflow-hidden bg-black border border-zinc-800 shadow-inner relative">
-        <iframe id="inAppYtIframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <iframe id="inAppYtIframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+
+      <!-- 1-Click Fallback Bar for Error 153 or Restricted Videos -->
+      <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-red-950/40 border border-red-800/60">
+        <div class="min-w-0 flex-1 text-[11px] text-zinc-300">
+          <div class="font-bold text-red-300 flex items-center space-x-1">
+            <span>🚨 혹시 영상에 오류 153이 뜨나요?</span>
+          </div>
+          <div class="text-[10px] text-zinc-400 truncate">브라우저 차단 시 1초 만에 바로 듣기:</div>
+        </div>
+        <div class="flex items-center space-x-1.5 shrink-0">
+          <button onclick="openMiniPopupWindow()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold" title="미니 팝업창으로 재생">
+            🪟 팝업
+          </button>
+          <button onclick="openExternalFromMini()" class="arcade-btn px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-black shadow-[0_0_10px_rgba(239,68,68,0.5)]" title="유튜브 공식 앱/웹에서 바로 재생">
+            ▶ YouTube 앱
+          </button>
+        </div>
       </div>
 
       <div class="flex items-center justify-between text-[10px] text-zinc-400 pt-0.5">
@@ -1428,14 +1469,42 @@ html_content = f'''<!DOCTYPE html>
       const titleEl = document.getElementById('ytMiniTitle');
       const artistEl = document.getElementById('ytMiniArtist');
       const coverEl = document.getElementById('ytMiniCover');
+      const noticeEl = document.getElementById('ytProtocolNotice');
 
       if (titleEl) titleEl.textContent = track.title;
       if (artistEl) artistEl.textContent = track.artist;
       if (coverEl && track.artwork) coverEl.src = track.artwork;
 
+      const isFile = (window.location.protocol === 'file:');
+      if (noticeEl) {{
+        if (isFile) {{
+          noticeEl.classList.remove('hidden');
+        }} else {{
+          noticeEl.classList.add('hidden');
+        }}
+      }}
+
       const ytId = track.youtubeId || 'vjl_uRTeOfU';
       if (iframe) {{
-        iframe.src = `https://www.youtube-nocookie.com/embed/${{ytId}}?autoplay=1&enablejsapi=1&playsinline=1`;
+        let originParam = '';
+        if (!isFile && window.location.origin && window.location.origin !== 'null') {{
+          originParam = `&origin=${{encodeURIComponent(window.location.origin)}}`;
+        }}
+        // Standard youtube.com embed with playsinline, rel=0, without enablejsapi to avoid Error 153 config handshake
+        iframe.src = `https://www.youtube.com/embed/${{ytId}}?autoplay=1&playsinline=1&rel=0${{originParam}}`;
+      }}
+    }}
+
+    function openMiniPopupWindow() {{
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {{
+        const cur = state.history[state.historyIdx];
+        const ytId = cur.track.youtubeId;
+        const url = ytId ? `https://www.youtube.com/watch?v=${{ytId}}` : `https://www.youtube.com/results?search_query=${{encodeURIComponent(cur.track.artist + ' ' + cur.track.title)}}`;
+        const w = 480;
+        const h = 360;
+        const left = Math.max(0, Math.round((screen.width - w) / 2));
+        const top = Math.max(0, Math.round((screen.height - h) / 2));
+        window.open(url, 'DJ_YT_POPUP', `width=${{w}},height=${{h}},left=${{left}},top=${{top}},menubar=no,status=no,toolbar=no`);
       }}
     }}
 
@@ -1500,7 +1569,7 @@ html_content = f'''<!DOCTYPE html>
 
         let targetUrl = '';
         if (service === 'youtube') {{
-          targetUrl = `https://www.youtube.com/results?search_query=${{query}}`;
+          targetUrl = cur.track.youtubeId ? `https://www.youtube.com/watch?v=${{cur.track.youtubeId}}` : `https://www.youtube.com/results?search_query=${{query}}`;
           showToast(`▶ YouTube에서 [${{cur.track.title}}] 완곡을 엽니다! (미리듣기는 일시정지)`);
         }} else if (service === 'ytmusic') {{
           targetUrl = `https://music.youtube.com/search?q=${{query}}`;
