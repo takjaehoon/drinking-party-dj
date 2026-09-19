@@ -5,254 +5,6 @@ with open('/Users/kimdoyun/.gemini/antigravity/scratch/drinking-party-dj/massive
 
 tracks_json = json.dumps(tracks, ensure_ascii=False, indent=2)
 
-def build_side_crowd_svg(side="left"):
-    is_left = (side == "left")
-    color_primary = "#ec4899" if is_left else "#06b6d4"  # Neon Pink / Neon Cyan
-    color_secondary = "#a855f7" if is_left else "#3b82f6" # Neon Purple / Blue
-    color_tertiary = "#f97316" if is_left else "#22c55e"  # Orange / Emerald
-
-    gid = "L" if is_left else "R"
-
-    p1 = "0,-50 0,1000 380,1000" if is_left else "500,-50 500,1000 120,1000"
-    p2 = "250,-50 80,1000 460,1000" if is_left else "250,-50 420,1000 40,1000"
-    p3 = "80,-50 150,1000 320,1000" if is_left else "420,-50 350,1000 180,1000"
-
-    svg = f'''
-<svg viewBox="0 0 500 1000" preserveAspectRatio="xMidYMax slice" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <!-- Laser Beam Gradients -->
-    <linearGradient id="laserBeam1_{gid}" x1="{'0%' if is_left else '100%'}" y1="0%" x2="{'60%' if is_left else '40%'}" y2="100%">
-      <stop offset="0%" stop-color="{color_primary}" stop-opacity="0.6" />
-      <stop offset="35%" stop-color="{color_primary}" stop-opacity="0.22" />
-      <stop offset="75%" stop-color="{color_secondary}" stop-opacity="0.08" />
-      <stop offset="100%" stop-color="#000" stop-opacity="0" />
-    </linearGradient>
-
-    <linearGradient id="laserBeam2_{gid}" x1="{'50%' if is_left else '50%'}" y1="0%" x2="{'20%' if is_left else '80%'}" y2="100%">
-      <stop offset="0%" stop-color="{color_secondary}" stop-opacity="0.55" />
-      <stop offset="45%" stop-color="{color_tertiary}" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="#000" stop-opacity="0" />
-    </linearGradient>
-
-    <!-- Club Speaker PA Stack Gradient -->
-    <linearGradient id="speakerGrad_{gid}" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#181924" />
-      <stop offset="50%" stop-color="#0e0f16" />
-      <stop offset="100%" stop-color="#06070a" />
-    </linearGradient>
-
-    <!-- Silhouette Rim-Glow Shadow Filters (3D Club Shadow Depth) -->
-    <filter id="glowBack_{gid}" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="-4" stdDeviation="10" flood-color="{color_secondary}" flood-opacity="0.5" />
-      <feDropShadow dx="0" dy="-1" stdDeviation="3" flood-color="#ffffff" flood-opacity="0.2" />
-    </filter>
-
-    <filter id="glowMid_{gid}" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="-6" stdDeviation="14" flood-color="{color_primary}" flood-opacity="0.65" />
-      <feDropShadow dx="0" dy="-1" stdDeviation="4" flood-color="{color_secondary}" flood-opacity="0.4" />
-    </filter>
-
-    <filter id="glowFront_{gid}" x="-25%" y="-25%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="-5" stdDeviation="10" flood-color="{color_primary}" flood-opacity="0.8" />
-    </filter>
-  </defs>
-
-  <!-- 1. Sweeping Laser Beam Spotlights -->
-  <g class="laser-spotlights" opacity="0.85">
-    <polygon points="{p1}" fill="url(#laserBeam1_{gid})" class="laser-sweep-1" />
-    <polygon points="{p2}" fill="url(#laserBeam2_{gid})" class="laser-sweep-2" />
-    <polygon points="{p3}" fill="url(#laserBeam1_{gid})" class="laser-sweep-3" opacity="0.6" />
-  </g>
-
-  <!-- 2. Club Subwoofer PA Stack (Outer Edge of Screen) -->
-  <g class="club-speaker-stack" fill="url(#speakerGrad_{gid})" stroke="#2a2c3d" stroke-width="1.5">
-    <rect x="{'0' if is_left else '410'}" y="350" width="90" height="650" rx="6" />
-    <g class="speaker-cone-pulse">
-      <circle cx="{'45' if is_left else '455'}" cy="440" r="32" fill="#0c0d13" stroke="{color_primary}" stroke-width="2" />
-      <circle cx="{'45' if is_left else '455'}" cy="440" r="14" fill="#1b1c28" />
-      <circle cx="{'45' if is_left else '455'}" cy="560" r="32" fill="#0c0d13" stroke="{color_secondary}" stroke-width="2" />
-      <circle cx="{'45' if is_left else '455'}" cy="560" r="14" fill="#1b1c28" />
-      <circle cx="{'45' if is_left else '455'}" cy="680" r="32" fill="#0c0d13" stroke="{color_primary}" stroke-width="2" />
-      <circle cx="{'45' if is_left else '455'}" cy="680" r="14" fill="#1b1c28" />
-      <circle cx="{'45' if is_left else '455'}" cy="800" r="32" fill="#0c0d13" stroke="{color_secondary}" stroke-width="2" />
-      <circle cx="{'45' if is_left else '455'}" cy="800" r="14" fill="#1b1c28" />
-    </g>
-  </g>
-
-  <!-- 3. Deep Background Crowd (Dense party heads & waving glow sticks) -->
-  <g class="crowd-deep" filter="url(#glowBack_{gid})" fill="#080911" opacity="0.75">
-    <line x1="80" y1="520" x2="65" y2="440" stroke="{color_primary}" stroke-width="4" stroke-linecap="round" filter="drop-shadow(0 0 8px {color_primary})" class="glowstick-sway-1" />
-    <line x1="210" y1="530" x2="230" y2="435" stroke="{color_secondary}" stroke-width="4" stroke-linecap="round" filter="drop-shadow(0 0 8px {color_secondary})" class="glowstick-sway-2" />
-    <line x1="340" y1="510" x2="330" y2="425" stroke="{color_tertiary}" stroke-width="4" stroke-linecap="round" filter="drop-shadow(0 0 8px {color_tertiary})" class="glowstick-sway-1" />
-
-    <circle cx="75" cy="525" r="18" />
-    <circle cx="130" cy="505" r="17" />
-    <circle cx="185" cy="530" r="19" />
-    <circle cx="240" cy="495" r="17" />
-    <circle cx="295" cy="520" r="18" />
-    <circle cx="350" cy="490" r="19" />
-    <circle cx="410" cy="525" r="17" />
-    <path d="M0 580 Q70 540 140 560 Q210 535 280 555 Q350 530 420 560 Q460 545 500 560 L500 1000 L0 1000 Z" />
-  </g>
-
-  <!-- 4. Midground Main Dancefloor (Dancers jumping, drinking, singing) -->
-  <g class="crowd-mid" filter="url(#glowMid_{gid})" fill="#030408">
-    <!-- Dancer 1: Cheers with beer mug -->
-    <g class="dancer-jump-1">
-      <circle cx="105" cy="620" r="23" />
-      <path d="M60 770 Q105 645 105 640 Q105 645 150 770 Z" />
-      <path d="M85 675 Q60 595 48 535 Q56 530 65 536 Q76 590 96 668 Z" />
-      <path d="M40 535 L58 535 L55 505 L37 505 Z" fill="#facc15" filter="drop-shadow(0 0 10px #facc15)" />
-      <path d="M57 512 Q66 520 56 528" stroke="#facc15" stroke-width="2.5" fill="none" />
-      <path d="M125 670 Q150 600 178 545 Q187 550 183 560 Q158 610 138 675 Z" />
-    </g>
-
-    <!-- Dancer 2: Both arms high, bouncing with headphones -->
-    <g class="dancer-jump-2">
-      <circle cx="225" cy="590" r="24" />
-      <path d="M204 586 Q225 560 246 586" stroke="{color_primary}" stroke-width="5" fill="none" stroke-linecap="round" />
-      <circle cx="204" cy="588" r="6" fill="{color_primary}" />
-      <circle cx="246" cy="588" r="6" fill="{color_primary}" />
-      <path d="M180 750 Q225 620 225 615 Q225 620 270 750 Z" />
-      <path d="M200 645 Q170 560 140 480 Q150 475 158 483 Q182 560 212 645 Z" />
-      <path d="M142 480 L135 450 Q140 445 145 450 L148 480 Z" />
-      <path d="M148 480 L158 455 Q164 458 160 465 L153 483 Z" />
-      <path d="M250 645 Q280 560 310 480 Q302 475 294 483 Q268 560 238 645 Z" />
-      <path d="M308 480 L315 450 Q310 445 305 450 L302 480 Z" />
-      <path d="M302 480 L292 455 Q286 458 290 465 L297 483 Z" />
-    </g>
-
-    <!-- Dancer 3: Euphoric sway, head tilted, cocktail in hand -->
-    <g class="dancer-sway-1">
-      <circle cx="345" cy="610" r="23" />
-      <path d="M300 765 Q345 635 345 630 Q345 635 390 765 Z" />
-      <path d="M325 660 Q295 580 270 520 Q279 515 288 523 Q308 580 338 660 Z" />
-      <path d="M365 660 Q395 585 425 525 Q434 530 428 540 Q402 595 380 660 Z" />
-      <polygon points="418,525 438,525 430,500 422,500" fill="#38bdf8" filter="drop-shadow(0 0 10px #38bdf8)" />
-    </g>
-
-    <!-- Dancer 4: Hip-hop head bob with snapback cap -->
-    <g class="dancer-jump-1">
-      <circle cx="450" cy="625" r="23" />
-      <path d="M430 615 L410 618 L430 626 Z" fill="{color_tertiary}" />
-      <path d="M410 780 Q450 650 450 645 Q450 650 490 780 Z" />
-      <path d="M430 675 Q405 605 385 550 Q394 545 402 552 Q418 605 442 675 Z" />
-      <path d="M470 675 Q495 610 515 560 Q522 565 518 575 Q498 620 482 675 Z" />
-    </g>
-  </g>
-
-  <!-- 5. Foreground VIP Barricade Silhouettes (Closest to Viewer/DJ) -->
-  <g class="crowd-front" filter="url(#glowFront_{gid})" fill="#010103">
-    <!-- Front hand 1: Rock horns sign -->
-    <g class="front-hand-pump-1">
-      <path d="M50 1000 L75 790 Q85 710 92 645 Q102 647 98 665 Q92 720 88 790 L120 1000 Z" />
-      <path d="M90 650 L84 605 Q89 600 95 604 L94 645 Z" />
-      <path d="M96 650 L108 610 Q114 614 110 622 L100 652 Z" />
-    </g>
-
-    <!-- Front hand 2: Glass toast raised high -->
-    <g class="front-hand-pump-2">
-      <path d="M185 1000 L205 770 Q218 695 228 630 Q238 634 233 650 Q224 705 220 770 L255 1000 Z" />
-      <circle cx="230" cy="625" r="8" fill="#f43f5e" filter="drop-shadow(0 0 12px #f43f5e)" />
-    </g>
-
-    <!-- Front hand 3: Hands reaching up in awe -->
-    <g class="front-hand-pump-3">
-      <path d="M310 1000 L330 790 Q345 720 355 655 Q365 658 360 675 Q350 730 345 790 L380 1000 Z" />
-      <circle cx="355" cy="650" r="7" />
-      <circle cx="364" cy="645" r="6" />
-    </g>
-
-    <!-- Front hand 4: Phone recording the DJ with glowing screen -->
-    <g class="front-hand-pump-1">
-      <path d="M420 1000 L440 800 Q455 730 465 670 Q475 673 470 690 Q460 740 455 800 L490 1000 Z" />
-      <rect x="458" y="640" width="22" height="38" rx="3" fill="#000" stroke="#fff" stroke-width="1.5" />
-      <rect x="460" y="643" width="18" height="32" rx="1.5" fill="#ffffff" opacity="0.9" filter="drop-shadow(0 0 14px #ffffff)" />
-    </g>
-
-    <!-- Bottom Stage Barricade Edge -->
-    <path d="M0 880 L500 880 L500 1000 L0 1000 Z" />
-  </g>
-
-  <!-- 6. Ground Fog & Club Mist Ambience -->
-  <ellipse cx="250" cy="940" rx="320" ry="80" fill="url(#laserBeam1_{gid})" opacity="0.35" filter="blur(25px)" />
-</svg>
-'''
-    return svg
-
-
-def build_bottom_crowd_svg():
-    svg = '''
-<svg viewBox="0 0 1000 320" preserveAspectRatio="none" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bottomGlowGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="#020204" stop-opacity="0.98" />
-      <stop offset="50%" stop-color="#070810" stop-opacity="0.8" />
-      <stop offset="85%" stop-color="#150824" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
-    </linearGradient>
-    <filter id="bottomHandShadow" x="-20%" y="-30%" width="140%" height="160%">
-      <feDropShadow dx="0" dy="-4" stdDeviation="8" flood-color="#ec4899" flood-opacity="0.7" />
-      <feDropShadow dx="0" dy="-10" stdDeviation="18" flood-color="#a855f7" flood-opacity="0.4" />
-    </filter>
-  </defs>
-
-  <rect x="0" y="0" width="1000" height="320" fill="url(#bottomGlowGrad)" />
-
-  <g class="bottom-crowd-hands" filter="url(#bottomHandShadow)" fill="#020306">
-    <g class="front-hand-pump-1">
-      <path d="M40 320 L60 210 Q68 165 74 130 Q82 132 78 145 Q74 180 70 210 L100 320 Z" />
-      <circle cx="74" cy="125" r="6" />
-    </g>
-    <g class="front-hand-pump-2">
-      <path d="M140 320 L160 190 Q170 145 178 105 Q188 108 184 122 Q176 160 172 190 L205 320 Z" />
-      <polygon points="172,105 188,105 185,85 170,85" fill="#facc15" filter="drop-shadow(0 0 8px #facc15)" />
-    </g>
-    <g class="front-hand-pump-3">
-      <path d="M260 320 L280 200 Q292 150 300 110 Q308 112 304 125 Q296 165 292 200 L325 320 Z" />
-      <path d="M298 110 L292 85 Q296 82 300 85 L303 110 Z" />
-      <path d="M303 110 L311 88 Q315 90 313 96 L306 112 Z" />
-    </g>
-    <g class="front-hand-pump-1">
-      <path d="M390 320 L405 220 Q415 175 422 140 Q430 142 426 155 Q420 185 418 220 L445 320 Z" />
-      <circle cx="422" cy="135" r="6" />
-    </g>
-
-    <circle cx="500" cy="220" r="28" />
-    <g class="front-hand-pump-2">
-      <path d="M475 240 Q460 175 450 120 Q458 115 465 122 Q476 170 488 240 Z" />
-      <path d="M525 240 Q540 170 552 115 Q560 118 556 128 Q542 175 532 240 Z" />
-    </g>
-
-    <g class="front-hand-pump-3">
-      <path d="M620 320 L640 210 Q650 160 658 120 Q666 122 662 135 Q654 175 650 210 L680 320 Z" />
-      <circle cx="658" cy="115" r="6" />
-    </g>
-    <g class="front-hand-pump-1">
-      <path d="M740 320 L760 190 Q772 140 780 95 Q790 98 786 112 Q778 155 772 190 L805 320 Z" />
-      <polygon points="775,95 792,95 786,75 778,75" fill="#38bdf8" filter="drop-shadow(0 0 8px #38bdf8)" />
-    </g>
-    <g class="front-hand-pump-2">
-      <path d="M860 320 L880 200 Q892 150 900 110 Q910 113 905 128 Q898 165 892 200 L925 320 Z" />
-      <path d="M898 112 L892 85 Q896 82 901 85 L902 110 Z" />
-      <path d="M904 110 L914 90 Q918 93 915 100 L907 114 Z" />
-    </g>
-    <g class="front-hand-pump-3">
-      <path d="M940 320 L955 220 Q965 175 972 135 Q980 137 976 150 Q970 185 968 220 L995 320 Z" />
-      <circle cx="972" cy="130" r="6" />
-    </g>
-
-    <rect x="0" y="270" width="1000" height="50" />
-  </g>
-</svg>
-'''
-    return svg
-
-CROWD_LEFT_SVG = build_side_crowd_svg("left")
-CROWD_RIGHT_SVG = build_side_crowd_svg("right")
-CROWD_BOTTOM_SVG = build_bottom_crowd_svg()
-
-
 html_content = f'''<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -398,7 +150,7 @@ html_content = f'''<!DOCTYPE html>
     }}
   </style>
 </head>
-<body class="club-mesh-bg min-h-screen flex flex-col items-center justify-start p-2.5 sm:p-5 select-none transition-all duration-300 relative overflow-x-hidden">
+<body class="club-mesh-bg min-h-screen flex flex-col items-center justify-start p-2.5 sm:p-5 select-none transition-all duration-300">
 
   <!-- Native Background Audio Player -->
   <audio id="realBgmAudio" preload="auto"></audio>
@@ -546,21 +298,6 @@ html_content = f'''<!DOCTYPE html>
 
   <!-- Main Container (Cyber-Rave DJ Console Flight Case) -->
   
-  <!-- 🌟 LEFT SIDE CLUB CROWD WING (Desktop / Tablet / Wide Viewports) -->
-  <aside id="clubCrowdLeft" class="fixed top-0 bottom-0 left-0 w-[calc(50vw-224px)] min-w-[120px] max-w-[550px] pointer-events-none z-0 overflow-hidden flex flex-col justify-end select-none hidden sm:flex">
-    {CROWD_LEFT_SVG}
-  </aside>
-
-  <!-- 🌟 RIGHT SIDE CLUB CROWD WING (Desktop / Tablet / Wide Viewports) -->
-  <aside id="clubCrowdRight" class="fixed top-0 bottom-0 right-0 w-[calc(50vw-224px)] min-w-[120px] max-w-[550px] pointer-events-none z-0 overflow-hidden flex flex-col justify-end select-none hidden sm:flex">
-    {CROWD_RIGHT_SVG}
-  </aside>
-
-  <!-- 🌟 AMBIENT BOTTOM CROWD OVERLAY (Mobile & Universal Party Vibe) -->
-  <div id="clubCrowdMobile" class="fixed bottom-0 left-0 right-0 h-40 sm:h-52 pointer-events-none z-0 overflow-hidden select-none">
-    {CROWD_BOTTOM_SVG}
-  </div>
-
   <!-- Main Container (Cyber-Rave DJ Console Flight Case) -->
   <div id="app" class="w-full max-w-md mx-auto flex flex-col min-h-[94vh] relative z-10 pb-6 bg-zinc-950/85 backdrop-blur-2xl border border-zinc-700/60 rounded-3xl p-3 sm:p-5 shadow-[0_0_60px_rgba(0,0,0,0.95)] my-1 sm:my-3">
 
@@ -883,26 +620,44 @@ html_content = f'''<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- 🎧 DJ TRACK NOTE (곡 한줄 설명 / 술자리 가이드 카드) -->
-      <div id="djTrackNoteCard" class="bg-gradient-to-r from-purple-950/90 via-zinc-900/90 to-zinc-950 border-2 border-neonPurple/70 rounded-2xl p-3 shadow-[0_0_20px_rgba(168,85,247,0.35)] space-y-1.5 transition duration-300">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-1.5">
-            <span class="text-sm animate-pulse">🎧</span>
-            <span class="text-xs font-black tracking-wider text-purple-300">DJ TRACK NOTE (한줄 설명)</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-900/60 text-purple-200 border border-purple-500/40 font-bold">DJ PICK</span>
+            <!-- 🎧 DUAL TRACK CARDS: [LEFT] DJ TRACK NOTE | [RIGHT] 떼창 포인트 -->
+      <div class="grid grid-cols-2 gap-2">
+        
+        <!-- LEFT: DJ TRACK NOTE (한줄 설명 / 술자리 가이드) -->
+        <div id="djTrackNoteCard" class="bg-gradient-to-b from-purple-950/90 via-zinc-900/90 to-zinc-950 border border-neonPurple/70 rounded-2xl p-2.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] flex flex-col justify-between space-y-1.5 transition duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-1">
+              <span class="text-xs">🎧</span>
+              <span class="text-[10.5px] font-black tracking-tight text-purple-300">DJ TRACK NOTE</span>
+            </div>
+            <span class="text-[8.5px] px-1.5 py-0.2 rounded-full bg-purple-900/70 text-purple-200 border border-purple-500/50 font-bold">NOTE</span>
           </div>
-          <button onclick="openSpotifyDirect()" class="text-[10px] font-black text-spotifyGreen hover:text-emerald-300 flex items-center space-x-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-700/60 transition" title="스포티파이에서 완곡 듣기">
-            <span>🟢 Spotify 완곡</span>
-            <span>↗</span>
-          </button>
+          <div id="djTrackNoteText" class="text-[11px] sm:text-xs font-bold text-zinc-100 text-center leading-relaxed py-2 px-1.5 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner flex-1 flex items-center justify-center min-h-[56px]">
+            "DJ 추천 코멘트 불러오는 중..."
+          </div>
+          <div class="flex items-center justify-center text-[9px] text-purple-300/80 font-medium">
+            <span>🍻 술자리 분위기 맞춤 가이드</span>
+          </div>
         </div>
-        <div id="djTrackNoteText" class="text-xs sm:text-sm font-bold text-zinc-100 text-center leading-relaxed tracking-wide py-2.5 px-3 bg-black/60 rounded-xl border border-purple-500/30 shadow-inner">
-          "DJ 추천 코멘트 불러오는 중..."
+
+        <!-- RIGHT: 떼창 포인트 (킬링파트 가사) -->
+        <div id="singAlongCard" class="bg-gradient-to-b from-pink-950/90 via-zinc-900/90 to-zinc-950 border border-neonPink/70 rounded-2xl p-2.5 shadow-[0_0_15px_rgba(236,72,153,0.3)] flex flex-col justify-between space-y-1.5 transition duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-1">
+              <span class="text-xs animate-bounce">🎤</span>
+              <span class="text-[10.5px] font-black tracking-tight text-pink-300">떼창 포인트</span>
+            </div>
+            <span class="text-[8.5px] px-1.5 py-0.2 rounded-full bg-pink-900/70 text-pink-200 border border-pink-500/50 font-bold">SING</span>
+          </div>
+          <div id="singAlongLyrics" class="text-[11px] sm:text-xs font-black text-white text-center leading-relaxed py-2 px-1.5 bg-black/60 rounded-xl border border-pink-500/30 shadow-inner flex-1 flex items-center justify-center min-h-[56px]">
+            "가사 불러오는 중..."
+          </div>
+          <div class="flex items-center justify-between text-[9px] text-pink-300/80 px-0.5 font-medium">
+            <span>다 함께 떼창 🎶</span>
+            <a id="lyricsSearchLink" href="#" target="_blank" class="hover:text-white underline text-zinc-400">가사 전문 ↗</a>
+          </div>
         </div>
-        <div class="flex items-center justify-between text-[9.5px] text-zinc-400 px-1 pt-0.5">
-          <span>🍻 이 곡에 어울리는 술자리 바이브를 즐겨보세요!</span>
-          <span class="text-purple-300/90 font-semibold">술자리 맞춤 BGM 🎶</span>
-        </div>
+
       </div>
 
       <!-- DJ LIVE FX LAUNCHPAD (4-PAD INTERACTIVE SOUNDBOARD) -->
@@ -1436,27 +1191,8 @@ html_content = f'''<!DOCTYPE html>
       showToast("💿 DJ SCRATCH! *끼긱-끼긱*");
     }}
 
-
-    // Interactive Club Crowd Frenzy Reaction
-    function triggerCrowdFrenzy() {{
-      const targets = [
-        document.getElementById('clubCrowdLeft'),
-        document.getElementById('clubCrowdRight'),
-        document.getElementById('clubCrowdMobile')
-      ];
-      targets.forEach(el => {{
-        if (el) {{
-          el.classList.remove('crowd-frenzy');
-          void el.offsetWidth;
-          el.classList.add('crowd-frenzy');
-          setTimeout(() => el.classList.remove('crowd-frenzy'), 1200);
-        }}
-      }});
-    }}
-
     // DJ Soundpad Live Trigger
     function triggerSoundpad(type, el) {{
-      triggerCrowdFrenzy();
       if (type === 'horn') soundEngine.playAirhorn();
       else if (type === 'drop') soundEngine.playBassDrop();
       else if (type === 'siren') soundEngine.playSiren();
@@ -1672,10 +1408,20 @@ html_content = f'''<!DOCTYPE html>
       document.getElementById('ruleStep2').textContent = mission.steps[1];
       document.getElementById('ruleStep3').textContent = mission.steps[2];
 
-      // Update DJ Track Note (곡 한줄 설명)
+      // 1. Update DJ Track Note (Left)
       const noteEl = document.getElementById('djTrackNoteText');
       if (noteEl) {{
         noteEl.textContent = track.description || `"${{track.artist}} - ${{track.title}}: 분위기를 띄우는 신나는 비트! 🍻"`;
+      }}
+
+      // 2. Update Sing-Along Lyrics (Right)
+      const lyricsEl = document.getElementById('singAlongLyrics');
+      if (lyricsEl) {{
+        lyricsEl.textContent = track.lyrics || `"${{track.title}}의 가장 신나는 킬링파트를 다 함께 떼창해보세요! 🍻"`;
+      }}
+      const lyricsSearch = document.getElementById('lyricsSearchLink');
+      if (lyricsSearch) {{
+        lyricsSearch.href = `https://search.naver.com/search.naver?query=${{encodeURIComponent(track.artist + ' ' + track.title + ' 가사')}}`;
       }}
 
       // Synchronize 30s background audio
