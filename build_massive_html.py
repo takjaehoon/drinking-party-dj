@@ -462,23 +462,18 @@ html_content = f'''<!DOCTYPE html>
           </span>
           <span class="text-[10px] text-zinc-400 font-normal">진행 중 언제든 변경 가능</span>
         </label>
-        <div class="grid grid-cols-4 gap-1.5 text-xs font-medium">
-          <button type="button" onclick="selectPlayMode('loop', this)" class="mode-chip arcade-btn py-2 px-1 rounded-xl border border-neonOrange border-b-orange-400 bg-orange-950/80 text-white text-center shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-            <span class="block font-black text-[10px]">🔂 무한루프</span>
-            <span class="text-[8.5px] text-orange-200/90 block mt-0.5">끊김없는 BGM</span>
+        <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+          <button type="button" onclick="selectPlayMode('loop', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-neonOrange border-b-orange-400 bg-orange-950/80 text-white text-center shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+            <span class="block font-black text-xs">🔂 무한루프 (추천)</span>
+            <span class="text-[9px] text-orange-200/90 block mt-0.5">30초 하이라이트 끊김없이 연속 반복</span>
           </button>
-          <button type="button" onclick="selectPlayMode('extended', this)" class="mode-chip arcade-btn py-2 px-1 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
-            <span class="block font-bold text-[10px]">⏱ 60초</span>
-            <span class="text-[8.5px] text-zinc-400 block mt-0.5">2절 루프 전환</span>
+          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2.5 px-2 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
+            <span class="block font-bold text-xs">⚡️ 30초 자동믹싱</span>
+            <span class="text-[9px] text-zinc-400 block mt-0.5">30초 재생 후 다음 라운드 자동 전환</span>
           </button>
-          <button type="button" onclick="selectPlayMode('long', this)" class="mode-chip arcade-btn py-2 px-1 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
-            <span class="block font-bold text-[10px]">⏱ 2분 롱</span>
-            <span class="text-[8.5px] text-zinc-400 block mt-0.5">4절 롱 에디트</span>
-          </button>
-          <button type="button" onclick="selectPlayMode('automix', this)" class="mode-chip arcade-btn py-2 px-1 rounded-xl border border-zinc-700/80 border-b-zinc-950 bg-zinc-900/90 text-zinc-300 text-center">
-            <span class="block font-bold text-[10px]">⚡️ 30초</span>
-            <span class="text-[8.5px] text-zinc-400 block mt-0.5">빠른 자동 믹싱</span>
-          </button>
+        </div>
+        <div class="text-[9.5px] text-zinc-400 text-center mt-1.5 font-medium">
+          💡 3~4분 완곡 및 가사/MV는 플레이어 상단의 <span class="text-red-400 font-bold">📺 완곡</span> 버튼으로 언제든 감상 가능!
         </div>
       </div>
 
@@ -589,22 +584,16 @@ html_content = f'''<!DOCTYPE html>
         <!-- Mode Switcher & Transport Controls -->
         <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800/80">
           
-          <!-- Mode Toggle Pills: 30s Loop vs 60s Extended vs 120s Long vs 30s AutoMix vs Full -->
-          <div class="flex items-center space-x-1 bg-zinc-950/90 p-1 rounded-xl border border-zinc-800 text-[10px]">
-            <button onclick="setPlayMode('loop')" id="modeBtnLoop" class="arcade-btn px-2 py-1 rounded-lg font-black bg-neonOrange text-black shadow-md border-b-orange-700" title="30초 무한루프">
+          <!-- Mode Toggle Pills: 30s Loop vs 30s AutoMix vs Full Track -->
+          <div class="flex items-center space-x-1.5 bg-zinc-950/90 p-1 rounded-xl border border-zinc-800 text-[11px]">
+            <button onclick="setPlayMode('loop')" id="modeBtnLoop" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonOrange text-black shadow-md border-b-orange-700" title="30초 하이라이트 끊김없는 연속 무한루프">
               🔂 무한루프
             </button>
-            <button onclick="setPlayMode('extended')" id="modeBtnExt" class="arcade-btn px-2 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="60초 더블루프 후 전환">
-              ⏱ 60초
+            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="30초 후 다음 라운드로 자동 믹싱">
+              ⚡️ 30초 믹싱
             </button>
-            <button onclick="setPlayMode('long')" id="modeBtnLong" class="arcade-btn px-2 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="120초 (2분) 롱에디트 루프 후 전환">
-              ⏱ 2분롱
-            </button>
-            <button onclick="setPlayMode('automix')" id="modeBtnMix" class="arcade-btn px-2 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent" title="30초 후 다음곡 믹싱">
-              ⚡️ 30초
-            </button>
-            <button onclick="openInAppYtPlayer()" id="modeBtnFull" class="arcade-btn px-2 py-1 rounded-lg font-black bg-red-600 text-white border-b-2 border-b-red-950 shadow-[0_0_10px_rgba(239,68,68,0.4)]" title="3~4분 완곡 전곡 감상">
-              📺 완곡
+            <button onclick="openInAppYtPlayer()" id="modeBtnFull" class="arcade-btn px-2.5 py-1 rounded-lg font-black bg-red-600 text-white border-b-2 border-b-red-950 shadow-[0_0_10px_rgba(239,68,68,0.4)]" title="3~4분 완곡 전곡 감상 (YouTube / Spotify)">
+              📺 완곡 듣기
             </button>
           </div>
 
@@ -1315,7 +1304,8 @@ html_content = f'''<!DOCTYPE html>
       atmosphere: null,
       genre: null,
       mood: 'normal',
-      playMode: 'loop', // 'loop', 'extended', 'automix'
+      playMode: 'loop', // 'loop', 'automix'
+      playedKeys: new Set(),
       loopCount: 0,
       strobeOn: false,
       ytActive: false,
@@ -1390,41 +1380,29 @@ html_content = f'''<!DOCTYPE html>
       el.classList.add('border-neonOrange', 'border-b-orange-400', 'bg-orange-950/80', 'text-white', 'shadow-[0_0_15px_rgba(249,115,22,0.4)]');
     }}
 
-    // Play Mode switcher on desk (Supports 30s loop, 60s extended, 30s auto-mix)
+    // Play Mode switcher on desk (Supports 30s loop and 30s auto-mix)
     function setPlayMode(mode) {{
       soundEngine.playScratch();
       state.playMode = mode;
       state.loopCount = 0;
       
       const btnLoop = document.getElementById('modeBtnLoop');
-      const btnExt = document.getElementById('modeBtnExt');
-      const btnLong = document.getElementById('modeBtnLong');
       const btnMix = document.getElementById('modeBtnMix');
       const bgm = document.getElementById('realBgmAudio');
 
-      [btnLoop, btnExt, btnLong, btnMix].forEach(b => {{
-        if (b) b.className = 'px-2 py-1 rounded-lg font-bold text-zinc-400 hover:text-white transition';
+      [btnLoop, btnMix].forEach(b => {{
+        if (b) b.className = 'arcade-btn px-2.5 py-1 rounded-lg font-bold text-zinc-400 hover:text-white border-b-transparent transition';
       }});
 
       if (mode === 'loop') {{
-        if (btnLoop) btnLoop.className = 'px-2 py-1 rounded-lg font-bold bg-neonOrange text-black shadow transition';
+        if (btnLoop) btnLoop.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonOrange text-black shadow-md border-b-orange-700 transition';
         bgm.loop = true;
-        showToast("🔂 무한루프 ON! (비트 끊김없이 계속 재생)");
-        if (bgm.paused && !state.ytActive) bgm.play();
-      }} else if (mode === 'extended') {{
-        if (btnExt) btnExt.className = 'px-2 py-1 rounded-lg font-bold bg-purple-500 text-black shadow transition';
-        bgm.loop = false;
-        showToast("⏱ 60초 익스텐디드 ON! (2절 루프 후 자동 전환)");
-        if (bgm.paused && !state.ytActive) bgm.play();
-      }} else if (mode === 'long') {{
-        if (btnLong) btnLong.className = 'px-2 py-1 rounded-lg font-bold bg-pink-500 text-white shadow transition';
-        bgm.loop = false;
-        showToast("⏱ 2분 롱 에디트 ON! (4절 루프 후 자동 전환)");
+        showToast("🔂 무한루프 ON! (30초 하이라이트 끊김없이 계속 재생)");
         if (bgm.paused && !state.ytActive) bgm.play();
       }} else if (mode === 'automix') {{
-        if (btnMix) btnMix.className = 'px-2 py-1 rounded-lg font-bold bg-neonCyan text-black shadow transition';
+        if (btnMix) btnMix.className = 'arcade-btn px-2.5 py-1 rounded-lg font-black bg-neonCyan text-black shadow-md border-b-cyan-700 transition';
         bgm.loop = false;
-        showToast("⚡️ 30초 믹싱 ON! (끝나면 다음 곡 즉시 전환)");
+        showToast("⚡️ 30초 믹싱 ON! (끝나면 다음 라운드로 즉시 자동 믹싱)");
         if (bgm.paused && !state.ytActive) bgm.play();
       }}
     }}
@@ -1719,7 +1697,7 @@ html_content = f'''<!DOCTYPE html>
           bgm.loop = (state.playMode === 'loop');
           bgm.play().then(() => {{
             setVinylSpinning(true);
-            const modeLabels = {{ 'loop': '🔂 30초 무한루프', 'extended': '⏱ 60초 익스텐디드', 'long': '⏱ 2분 롱에디트', 'automix': '⚡️ 30초 믹싱' }};
+            const modeLabels = {{ 'loop': '🔂 30초 무한루프', 'automix': '⚡️ 30초 믹싱' }};
             document.getElementById('audioStatusText').textContent = modeLabels[state.playMode] || '비트 스트리밍';
           }}).catch(err => {{
             console.warn("Audio resume error:", err);
@@ -1839,7 +1817,18 @@ html_content = f'''<!DOCTYPE html>
         if (pool.length === 0) pool = ALL_TRACKS;
       }}
 
-      const track = pickRandom(pool);
+      // 3. Duplicate Prevention (No repeats until all songs in the pool are played)
+      if (!state.playedKeys) state.playedKeys = new Set();
+      
+      let unplayed = pool.filter(t => !state.playedKeys.has((t.title + '---' + t.artist).toLowerCase()));
+      if (unplayed.length === 0) {{
+        // Entire pool played! Reset played keys for this pool to start fresh cycle
+        pool.forEach(t => state.playedKeys.delete((t.title + '---' + t.artist).toLowerCase()));
+        unplayed = pool;
+      }}
+
+      const track = pickRandom(unplayed.length > 0 ? unplayed : pool);
+      state.playedKeys.add((track.title + '---' + track.artist).toLowerCase());
 
       // 3. Banter
       const banters = BANTERS_DB[mood] || BANTERS_DB['normal'];
@@ -1914,7 +1903,7 @@ html_content = f'''<!DOCTYPE html>
         if (bgm && track.audioUrl) {{
           bgm.play().then(() => {{
             setVinylSpinning(true);
-            const modeLabels = {{ 'loop': '🔂 30초 무한루프', 'extended': '⏱ 60초 익스텐디드', 'long': '⏱ 2분 롱에디트', 'automix': '⚡️ 30초 믹싱' }};
+            const modeLabels = {{ 'loop': '🔂 30초 무한루프', 'automix': '⚡️ 30초 믹싱' }};
             document.getElementById('audioStatusText').textContent = modeLabels[state.playMode] || '비트 스트리밍';
           }}).catch(err => {{
             console.warn("Audio play blocked:", err);
@@ -2011,37 +2000,11 @@ html_content = f'''<!DOCTYPE html>
       }}
     }}
 
-    // Auto next when audio ends (handles 60s extended loop and 30s automix)
+    // Auto next when audio ends (handles 30s automix)
     bgm.addEventListener('ended', () => {{
-      if (state.playMode === 'extended') {{
-        state.loopCount = (state.loopCount || 0) + 1;
-        if (state.loopCount < 2) {{
-          bgm.currentTime = 0;
-          bgm.play();
-          soundEngine.playBassDrop();
-          showToast("🔁 60초 익스텐디드: 2절 비트 드롭! (1/2)");
-        }} else {{
-          state.loopCount = 0;
-          soundEngine.playScratch();
-          showToast("⚡️ 60초 완료: 다음 라운드로 자동 믹싱!");
-          generateNewRound();
-        }}
-      }} else if (state.playMode === 'long') {{
-        state.loopCount = (state.loopCount || 0) + 1;
-        if (state.loopCount < 4) {{
-          bgm.currentTime = 0;
-          bgm.play();
-          soundEngine.playBassDrop();
-          showToast(`🔁 2분 롱 에디트: 비트 드롭 (${{state.loopCount}}/4)`);
-        }} else {{
-          state.loopCount = 0;
-          soundEngine.playScratch();
-          showToast("⚡️ 2분 롱 에디트 완료: 다음 곡으로 자동 믹싱!");
-          generateNewRound();
-        }}
-      }} else if (state.playMode === 'automix') {{
+      if (state.playMode === 'automix') {{
         soundEngine.playScratch();
-        showToast("⚡️ 30초 믹싱: 다음 곡으로 자동 전환!");
+        showToast("⚡️ 30초 믹싱: 다음 라운드로 자동 전환!");
         generateNewRound();
       }}
     }});
