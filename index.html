@@ -978,7 +978,7 @@
         <span class="absolute right-1 text-[10px] font-black text-zinc-500">3시</span>
 
         <!-- Realistic Korean Soju Bottle SVG Container -->
-        <div id="sojuBottleGraphic" class="relative z-10 origin-center" style="transform: rotate(0deg); will-change: transform;">
+        <div id="sojuBottleGraphic" class="relative z-10 origin-center" style="transform: rotate(0deg) translateZ(0); will-change: transform; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden;">
           <!-- Neon Targeting Laser Beam emerging straight from bottle cap -->
           <div id="bottleLaserBeam" class="hidden absolute -top-20 left-1/2 -translate-x-1/2 w-1.5 h-24 bg-gradient-to-t from-emerald-300 via-emerald-400 to-transparent shadow-[0_0_20px_rgba(52,211,153,1)] pointer-events-none rounded-full"></div>
           <svg width="68" height="170" viewBox="0 0 68 170" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-[0_0_20px_rgba(16,185,129,0.6)]">
@@ -6641,7 +6641,7 @@
       const durationSec = 3.6;
       // Ultra-smooth physical deceleration (Cubic-Bezier) - 60-120fps GPU accelerated
       bottleGraphic.style.transition = `transform ${durationSec}s cubic-bezier(0.12, 0.86, 0.22, 1.0)`;
-      bottleGraphic.style.transform = `rotate(${currentBottleAngle}deg)`;
+      bottleGraphic.style.transform = `rotate(${currentBottleAngle}deg) translateZ(0)`;
 
       // Dynamic clicking sound timing as bottle slows down
       const clickDelays = [0.2, 0.45, 0.75, 1.1, 1.5, 1.95, 2.4, 2.8, 3.15, 3.45];
