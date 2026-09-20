@@ -34,6 +34,210 @@
         }
       }
     }
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      } else {
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }
+    }
+
+    function updateMissionLockUI() {
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      } else {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }
+    }
+
+    function rerollMissionOnly() {
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      } else if (SITUATION_MISSIONS[grp]) {
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }
+      if (!missionList || missionList.length === 0) {
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        state.history[state.historyIdx].mission = newMission;
+      }
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${newMission.ruleTitle} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${newMission.ruleTitle}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${idx + 1}</span><span class="text-zinc-200">${step}</span>`;
+          modalSteps.appendChild(li);
+        });
+      }
+
+      showToast(`🎲 새 미션 교체: [${newMission.title}]`);
+    }
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${seconds}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {
+        current -= 1;
+        if (current > 0) {
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        } else {
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 350);
+          setTimeout(() => {
+            cancelSpeedTimer();
+          }, 2200);
+        }
+      }, 1000);
+    }
+
+    function cancelSpeedTimer() {
+      if (speedTimerInterval) {
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }
+    }
+
+    function closeBottleSpinner() {
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function spinBottle() {
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {
+          bottleGraphic.style.transform = `rotate(${bottleAngle}deg)`;
+        }
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        } else {
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {
+            laser.style.transform = `translateX(-50%) rotate(${bottleAngle}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 300);
+        }
+      }
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
+    }
   </script>
 
   <style>
@@ -270,6 +474,74 @@
         osc.start(now);
         osc.stop(now + 0.22);
       }
+      playCountdownBeep(freq = 880) {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      }
+
+      playTimeOutBuzzer() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.linearRampToValueAtTime(105, now + 0.5);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.52);
+      }
+
+      playBottleSpin() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1100 + Math.random() * 400, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+
+      playFanfare() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.3, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.26);
+        });
+      }
+
       playAirhorn() {
         if (this.isMuted) return;
         this.init();
@@ -370,6 +642,210 @@
       }
     }
     const soundEngine = new PartySoundEngine();
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      } else {
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }
+    }
+
+    function updateMissionLockUI() {
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      } else {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }
+    }
+
+    function rerollMissionOnly() {
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      } else if (SITUATION_MISSIONS[grp]) {
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }
+      if (!missionList || missionList.length === 0) {
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        state.history[state.historyIdx].mission = newMission;
+      }
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${newMission.ruleTitle} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${newMission.ruleTitle}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${idx + 1}</span><span class="text-zinc-200">${step}</span>`;
+          modalSteps.appendChild(li);
+        });
+      }
+
+      showToast(`🎲 새 미션 교체: [${newMission.title}]`);
+    }
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${seconds}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {
+        current -= 1;
+        if (current > 0) {
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        } else {
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 350);
+          setTimeout(() => {
+            cancelSpeedTimer();
+          }, 2200);
+        }
+      }, 1000);
+    }
+
+    function cancelSpeedTimer() {
+      if (speedTimerInterval) {
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }
+    }
+
+    function closeBottleSpinner() {
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function spinBottle() {
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {
+          bottleGraphic.style.transform = `rotate(${bottleAngle}deg)`;
+        }
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        } else {
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {
+            laser.style.transform = `translateX(-50%) rotate(${bottleAngle}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 300);
+        }
+      }
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
+    }
   </script>
 
   <!-- Main Container (Cyber-Rave DJ Console Flight Case) -->
@@ -745,6 +1221,26 @@
             <span class="text-[10px] font-black mt-0.5 tracking-tight">원샷 카운트</span>
           </button>
         </div>
+
+        <!-- ⚡️ Party Mini Toolkit (3초/5초 스피드 타이머 & 소주병 돌리기) -->
+        <div class="mt-2.5 pt-2 border-t border-zinc-800/90 flex items-center justify-between">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-[10px] font-black text-amber-400 flex items-center space-x-1">
+              <span>⏱️</span>
+              <span>타이머:</span>
+            </span>
+            <button onclick="startSpeedTimer(3)" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950/90 text-amber-300 border border-amber-500/80 hover:bg-amber-900 shadow-[0_0_8px_rgba(245,158,11,0.4)] flex items-center space-x-1">
+              <span>⚡ 3초</span>
+            </button>
+            <button onclick="startSpeedTimer(5)" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-orange-950/90 text-orange-300 border border-orange-500/80 hover:bg-orange-900 shadow-[0_0_8px_rgba(249,115,22,0.4)] flex items-center space-x-1">
+              <span>🔥 5초</span>
+            </button>
+          </div>
+          <button onclick="openBottleSpinner()" class="arcade-btn px-3 py-1 rounded-lg text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-500 hover:bg-emerald-900 shadow-[0_0_12px_rgba(16,185,129,0.45)] flex items-center space-x-1.5">
+            <span>🍾</span>
+            <span>소주병 돌리기</span>
+          </button>
+        </div>
       </div>
 
       <!-- AI MC Dialogue Bubble (Live On-Air Studio with bouncing voice waveform) -->
@@ -769,10 +1265,23 @@
       <div id="missionContainer" class="flex-1 bg-gradient-to-b from-zinc-900 via-black to-zinc-950 border-2 border-neonCyan/50 rounded-2xl p-4 flex flex-col justify-between shadow-2xl neon-border-cyan transition-all">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span id="missionTag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-950 text-cyan-200 border border-cyan-500/60 shadow">
-              🎯 이번 라운드 미션
-            </span>
-            <span class="text-[10px] text-zinc-400 font-bold" id="missionCategoryTag">테이블 공통</span>
+            <div class="flex items-center space-x-2">
+              <span id="missionTag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-950 text-cyan-200 border border-cyan-500/60 shadow">
+                🎯 이번 라운드 미션
+              </span>
+              <span class="text-[10px] text-zinc-400 font-bold" id="missionCategoryTag">테이블 공통</span>
+            </div>
+            
+            <!-- 🔒 Mission Lock & Reroll Controls -->
+            <div class="flex items-center space-x-1.5">
+              <button id="missionLockBtn" onclick="toggleMissionLock()" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all" title="음악이 바뀌어도 미션 고정 유지">
+                <span id="missionLockIcon">🔓</span>
+                <span id="missionLockText">미션 변경 중</span>
+              </button>
+              <button onclick="rerollMissionOnly()" class="arcade-btn px-2 py-1 rounded-lg text-[10px] font-black bg-purple-950 text-purple-200 border border-purple-700 hover:bg-purple-900 flex items-center space-x-1" title="음악은 유지하고 미션만 새로 뽑기">
+                <span>🎲 다른 미션</span>
+              </button>
+            </div>
           </div>
           <h2 id="missionTitle" class="text-lg sm:text-xl font-black text-white tracking-tight mt-1 leading-tight">
             상황 맞춤 술자리 미션
@@ -825,6 +1334,93 @@
       </div>
 
     </section>
+
+  <!-- ⏱ Speed Countdown Overlay Modal -->
+  <div id="speedTimerModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md transition-all">
+    <div class="relative flex flex-col items-center justify-center p-8 text-center">
+      <div id="timerNumber" class="text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-100 transition-transform duration-200">
+        3
+      </div>
+      <div id="timerSubText" class="mt-4 text-sm sm:text-base font-bold text-zinc-300 tracking-wider">
+        순발력 스피드 카운트다운!
+      </div>
+      <button onclick="cancelSpeedTimer()" class="mt-8 px-5 py-2 rounded-full bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-600 text-xs font-bold">
+        ✕ 닫기 / 취소
+      </button>
+    </div>
+  </div>
+
+  <!-- 🍾 Digital Soju Bottle Spinner Modal -->
+  <div id="bottleSpinModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md p-4 transition-all">
+    <div class="relative w-full max-w-sm bg-zinc-950/95 border border-emerald-500/60 rounded-3xl p-6 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex flex-col items-center text-center">
+      
+      <!-- Top header -->
+      <div class="w-full flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div class="flex items-center space-x-1.5 text-xs font-black text-emerald-400">
+          <span>🍾</span>
+          <span>테이블 소주병 룰렛</span>
+        </div>
+        <button onclick="closeBottleSpinner()" class="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Instruction / Result Toast -->
+      <div id="bottleStatusText" class="my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900">
+        병을 터치하거나 돌리기 버튼을 누르세요!
+      </div>
+
+      <!-- Spinning Table & Bottle Area -->
+      <div class="relative w-64 h-64 my-2 flex items-center justify-center cursor-pointer select-none" onclick="spinBottle()">
+        <!-- Radar Circles & Compass Directions -->
+        <div class="absolute inset-0 rounded-full border border-dashed border-emerald-800/60 flex items-center justify-center">
+          <div class="w-48 h-48 rounded-full border border-emerald-500/20 flex items-center justify-center">
+            <div class="w-32 h-32 rounded-full border border-emerald-500/30"></div>
+          </div>
+        </div>
+
+        <!-- 8 Direction Indicators -->
+        <span class="absolute top-1 text-[10px] font-black text-zinc-500">12시</span>
+        <span class="absolute bottom-1 text-[10px] font-black text-zinc-500">6시</span>
+        <span class="absolute left-1 text-[10px] font-black text-zinc-500">9시</span>
+        <span class="absolute right-1 text-[10px] font-black text-zinc-500">3시</span>
+
+        <!-- Neon Targeting Laser Beam -->
+        <div id="bottleLaserBeam" class="hidden absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-28 bg-gradient-to-t from-emerald-400 to-transparent shadow-[0_0_15px_rgba(52,211,153,1)] pointer-events-none"></div>
+
+        <!-- Realistic Korean Soju Bottle SVG -->
+        <div id="sojuBottleGraphic" class="relative z-10 transition-transform origin-center" style="transform: rotate(0deg);">
+          <svg width="68" height="170" viewBox="0 0 68 170" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-[0_0_20px_rgba(16,185,129,0.6)]">
+            <!-- Bottle Cap -->
+            <rect x="26" y="2" width="16" height="12" rx="2" fill="#047857" stroke="#34D399" stroke-width="1.5"/>
+            <!-- Neck -->
+            <path d="M28 14H40V44L48 56H20L28 44V14Z" fill="#065F46" stroke="#10B981" stroke-width="1.5"/>
+            <!-- Main Body -->
+            <rect x="14" y="56" width="40" height="102" rx="10" fill="#047857" stroke="#10B981" stroke-width="2"/>
+            <!-- Inner Glass Gloss -->
+            <rect x="17" y="60" width="8" height="92" rx="4" fill="white" fill-opacity="0.25"/>
+            <!-- White Paper Label -->
+            <rect x="16" y="76" width="36" height="52" rx="3" fill="#F8FAFC" stroke="#E2E8F0"/>
+            <!-- Label Text & Illustration -->
+            <text x="34" y="98" font-size="10" font-weight="900" fill="#047857" text-anchor="middle" font-family="sans-serif">참이슬</text>
+            <text x="34" y="112" font-size="7" font-weight="bold" fill="#64748B" text-anchor="middle" font-family="sans-serif">Fresh 16.5°</text>
+            <circle cx="34" cy="120" r="2.5" fill="#EF4444"/>
+            <!-- Bottom Rim -->
+            <rect x="16" y="156" width="36" height="4" rx="2" fill="#064E3B"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="w-full mt-4 flex items-center space-x-2">
+        <button onclick="spinBottle()" id="spinActionBtn" class="arcade-btn flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 border border-emerald-400 text-sm font-black text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center space-x-1.5">
+          <span>🌀</span>
+          <span>소주병 휙 돌리기!</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
 
     <!-- SCREEN 3: 게임 설명 바텀 시트 / 모달 -->
     <div id="gameRuleModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -3079,6 +3675,1075 @@
     "youtubeId": "m2iuZ-uDziM",
     "lyrics": "Sweet like a candy, 끈적하게 달라붙어 / 뜨거운 태양 아래 녹아내려 Sticky!",
     "description": "뜨거운 한여름 워터밤 무대를 장악한 가장 핫하고 끈적한 서머 바이브 🌴"
+  },
+  {
+    "title": "말 달리자",
+    "artist": "크라잉넛",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/cf/8c/2f/cf8c2ff2-9aa1-6504-b267-de1f3cd50662/mzaf_4413949209708324693.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a4/4e/57/a44e57bb-88db-cb70-3b8a-a47de3fbf651/190560026098.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "한국 펑크 록의 영원한 레전드! 술자리 막판 텐션 폭발 떼창곡 🐎"
+  },
+  {
+    "title": "사랑앓이",
+    "artist": "FT아일랜드",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/80/3f/99803f84-85be-e20a-d2c4-a32b3b13f3be/mzaf_16701203627814671333.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music49/v4/52/44/8f/52448f21-353f-eec6-e78a-ed24ba7e8473/cover-FTISLAND_Cheerful_Sensibility.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "이홍기의 독보적인 록 보컬! 2000년대 학창 시절 노래방 1위 애창곡 💔"
+  },
+  {
+    "title": "바래",
+    "artist": "FT아일랜드",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/73/ec/44/73ec44a7-5ee9-6025-546b-f9956d45ddd7/mzaf_15392805505487488123.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music69/v4/d0/cf/54/d0cf541d-673c-0b4f-b01f-3d3c4c0c78b6/Double_Date.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "도입부 랩부터 후렴구까지 전원 떼창 가능한 신나는 록 밴드 앤섬 ☀️"
+  },
+  {
+    "title": "직감",
+    "artist": "씨엔블루",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/80/c4/aa/80c4aaa9-0703-e4da-6ef1-ba39466cda2b/mzaf_4083829459535198123.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music69/v4/17/1b/fe/171bfe9f-55c1-3e1d-a01a-fc6314626c52/First_Step_1400.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "세련된 팝 록 비트와 정용화의 시원한 보컬이 돋보이는 웰메이드 히트곡 ✨"
+  },
+  {
+    "title": "멀어지다",
+    "artist": "넬",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/01/fc/f6/01fcf6c2-91bf-4bb5-48fa-865dbc7a55b1/mzaf_15330378107903938501.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/74/6a/b5/746ab5e4-7eee-0e89-ae28-1d0332ecd4ad/888272107319_Cover.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "몽환적인 피아노와 스트링 선율이 가슴을 울리는 깊은 심야 감성 명곡 🌌"
+  },
+  {
+    "title": "어쩌면…",
+    "artist": "버즈",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/83/0a/51/830a5179-1b9e-7d84-e528-b33fbe67e383/mzaf_1603272378969889098.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/da/4f/ce/da4fcedb-ba3e-c48d-3ca3-f9ca047e48a5/8023558.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "버즈의 데뷔 앨범 타이틀곡! 가슴을 후벼파는 민경훈의 리즈 시절 발라드 록 🎤"
+  },
+  {
+    "title": "달빛소년",
+    "artist": "체리필터",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ff/d8/df/ffd8df6d-e2ff-2293-c9d1-1950e27dfe4f/mzaf_16895779745049931961.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c5/20/55/c52055b8-cf64-06a7-540d-fb2b089d29f9/3.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "달빛 아래서 춤추는 듯한 환상적인 질주감과 유쾌한 록 비트 🌕"
+  },
+  {
+    "title": "안녕, 나의 슬픔",
+    "artist": "QWER",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/16/5d/36/165d363c-e3a0-e8a1-03ac-88508daf4c09/mzaf_1056915917066729875.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/15/00/62/150062e8-fd58-5dc2-bfea-f0e502e0957a/cover_KM0020310_1.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "지친 하루의 끝을 따뜻하게 위로해 주는 QWER표 감성 모던록 발라드 💌"
+  },
+  {
+    "title": "아니 근데 진짜",
+    "artist": "LUCY",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c6/00/07/c60007d4-a524-0f33-6854-05408a3caeac/mzaf_1865263392331710088.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/42/30/22/4230229d-664d-e08a-d658-0e6044b63977/8804775276934.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "말문 트이는 제목처럼 통통 튀는 베이스라인과 유쾌한 고백 송 💬"
+  },
+  {
+    "title": "가을목련",
+    "artist": "소란",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fe/5a/94/fe5a94c2-53e7-27dc-ce24-d72a0d99126f/mzaf_398320107760329493.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f3/da/ad/f3daadd1-c1c5-7a8f-4539-12eaa95004ae/8809795762542.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "달콤한 보컬 고영배의 음색과 따스한 어쿠스틱 밴드 사운드 🍂"
+  },
+  {
+    "title": "Viva 청춘",
+    "artist": "딕펑스",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/f2/9a/d3/f29ad387-eae2-db8d-b1f7-b51c67c46333/mzaf_12269247682042862419.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/a8/46/0ba846b0-63b6-1ad1-b80b-cf62357f0ee4/8809856807571.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "피아노 록의 통통 튀는 매력! 슈스케를 들썩이게 만들었던 청춘 찬가 🎹"
+  },
+  {
+    "title": "토요일 밤이 좋아",
+    "artist": "로맨틱펀치",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/71/44/96/714496b4-dd81-0f66-d9b1-e3312795754c/mzaf_13809804902120873610.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/f9/09/f2/f909f2c4-6024-79e4-377a-400b400f4857/8809795713339.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "불금, 불토에 술잔 들고 광란의 파티를 즐기기 위한 절대 강자 록 🎆"
+  },
+  {
+    "title": "거짓말",
+    "artist": "BIGBANG",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d5/5f/10/d55f10df-9911-9532-40f6-543b48cf8cb3/mzaf_8615459546855638105.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/80/7e/de/807edef3-53a7-41aa-47d0-2c9fc5c16045/KakaoTalk_Photo_2018-01-03-19-36-56.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘여보세요..’ 한국 가요계의 판도를 바꾼 빅뱅 최고의 시그니처 명곡 📱"
+  },
+  {
+    "title": "Fire",
+    "artist": "2NE1",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d8/7c/cf/d87ccf14-2a5c-d59c-9ee5-c8567042e3ac/mzaf_4855774095911635485.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/ad/54/17/ad54177e-3f63-2e84-67f0-640627feeb97/8806384562958.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘미-미-미-미-미치고 싶어!’ 등장과 동시에 충격을 안겼던 데뷔 레전드 🔥"
+  },
+  {
+    "title": "우리집",
+    "artist": "2PM",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/87/4d/94874d85-ca10-9ff9-79b2-ccdfabecc211/mzaf_3718728294337392919.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ec/c1/5e/ecc15efa-2349-7119-de36-9b484d3f70a6/738676855876_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "역주행 신화의 주인공! 치명적인 섹시함과 성숙한 어른의 파티 그루브 🏠"
+  },
+  {
+    "title": "Heartbeat",
+    "artist": "2PM",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/34/a1/ce34a121-1ab2-b6d1-e8fb-95fe8098f60d/mzaf_4285553925005549023.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ac/f5/d0/acf5d096-a067-c39f-f2ec-e5c36c5595c2/799975599908_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘Listen to my Heartbeat!’ 심장 박동 퍼포먼스로 가요계를 찢은 짐승돌 🫀"
+  },
+  {
+    "title": "Hands Up",
+    "artist": "2PM",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d3/a0/e9/d3a0e9af-454f-0c48-a081-536f2572ee4a/mzaf_114156578188427072.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/b5/87/cb/b587cb6c-38f0-e5ae-d19d-4f8844c59778/608866406655_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘술 한잔을 다 비우고 Hands Up!’ 술자리 텐션 폭발 전용 공식 찬가 🍻"
+  },
+  {
+    "title": "Roly-Poly",
+    "artist": "티아라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/22/81/81/22818108-f67e-233f-f5fe-b4c3b29087f8/mzaf_18027937626619316311.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a6/e9/2d/a6e92d40-c0df-ceba-7559-4908e7f7dfff/cover_KM0000970_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "복고 댄스의 끝판왕! 전주 나오자마자 어깨춤 절로 나오는 대국민 디스코 🪩"
+  },
+  {
+    "title": "Bo Peep Bo Peep",
+    "artist": "티아라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/26/02/7b/26027b65-c222-2e25-b130-066bdfed796d/mzaf_11656884277849864632.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/dd/97/42/dd974210-751f-7d3c-8db2-324ff16c9e55/cover_KM0000400_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘뽀삐뽀삐 뽀뽀뽀삐!’ 귀여운 율동과 중독성 만점 후크송 🐾"
+  },
+  {
+    "title": "Lovey-Dovey",
+    "artist": "티아라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/64/fa/6964faec-47f2-7787-8c6a-d5cfb6bfeddf/mzaf_10160259072869332614.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a3/a7/f5/a3a7f575-c5b4-cb63-3183-a9aa36f2608f/cover_KM0001365_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "셔플 댄스 열풍을 몰고 온 강력한 비트와 중독적인 멜로디 🕺"
+  },
+  {
+    "title": "Tell Me",
+    "artist": "원더걸스",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/bf/38/94bf3871-23bb-8ace-8c33-24698a68adb0/mzaf_16914621104785353681.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9c/f6/bb/9cf6bb20-1217-299b-795f-dab1a344b450/8804775027727_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘어머나!’ 대한민국 전역을 텔미 열풍으로 뒤흔든 국민 걸그룹의 전설 🎀"
+  },
+  {
+    "title": "Nobody",
+    "artist": "원더걸스",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8b/8e/ef/8b8eef3e-ee1e-23ab-951a-fa29f4b70a48/mzaf_11412424461222179962.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/4b/6a/5e/4b6a5ed9-be10-aa8f-1140-ceef633a22eb/8804775031021_Cover.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "스탠드 마이크 댄스와 박수 비트! 전 세계를 사로잡은 레트로 명작 👏"
+  },
+  {
+    "title": "미스터",
+    "artist": "카라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7d/43/0a/7d430a67-626c-5249-874e-401c15a90d18/mzaf_8561594543511679728.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/21/0d/8c/210d8ce4-6865-9e6a-54c5-3f0ac64847bd/cover-KARA_Revolution.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "전설의 엉덩이춤! 한일 양국을 동시에 휩쓸었던 카라의 최전성기 히트작 🍑"
+  },
+  {
+    "title": "Step",
+    "artist": "카라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/74/7b/20747b44-f21b-57d4-c47b-99dbc2529504/mzaf_12984494708840511691.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cf/a7/cd/cfa7cde0-6361-50f9-3e67-a660e07a7041/cover-_KARA_3rd_Album_STEP.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "숨 쉴 틈 없이 휘몰아치는 일렉트로닉 팝 비트! 텐션 끌어올릴 때 필수 ⚡"
+  },
+  {
+    "title": "소원을 말해봐 (Genie)",
+    "artist": "소녀시대",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4b/17/62/4b17625d-23d5-fbd4-f6f4-0ea5143d64bf/mzaf_17129596999481410519.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/02/5f/0c/025f0c9a-6346-ed15-e7c3-055c442ac580/asset.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "제기차기 춤과 완벽한 각선미 퍼포먼스! 술자리 소원을 이루어주는 지니 🧞"
+  },
+  {
+    "title": "내꺼하자",
+    "artist": "인피니트",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/eb/fc/8febfc70-5ed1-d366-2b13-fe50e4960140/mzaf_9356210024540634310.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/7b/e8/1c/7be81cb4-d691-b330-365b-37499b445025/6._1_Over_The_TOP_cover_3000x3000.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "칼군무의 정석! 박력 넘치는 고백과 신스팝 사운드가 가슴을 울리는 곡 💘"
+  },
+  {
+    "title": "Fiction",
+    "artist": "비스트",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/3f/b6/8b3fb6d6-dbd4-1576-9398-9bb5c2a87536/mzaf_12088744223166017090.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/0b/d4/ae/0bd4ae40-8eee-de14-8fe5-621a9f192911/Fiction_And_Fact.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘오늘도 난 바보처럼 눈물 흘리며…’ 전설의 팽귄춤과 감성 댄스 명곡 🐧"
+  },
+  {
+    "title": "비가 오는 날엔",
+    "artist": "비스트",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/91/6a/24/916a24c5-95be-3cd8-ecff-ceacadbf41e0/mzaf_135095993577783137.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/2f/a5/85/2fa58546-0fcd-8fae-1377-59e123869cf1/On_Rainy_Days.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "비 오는 날 술자리 공식 BGM 1위! 가슴을 적시는 감성 댄스 발라드 ☔"
+  },
+  {
+    "title": "Mr. Chu",
+    "artist": "에이핑크",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/23/b0/45/23b04545-9854-b863-f5d0-c974efd868eb/mzaf_8714009102318342462.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/26/d6/ce/26d6cef6-17e8-33b3-145d-2c5e399c068f/KM0002664-_-0331.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "달콤한 입맞춤 율동과 함께 설렘을 폭발시키는 러블리 댄스 팝 💋"
+  },
+  {
+    "title": "Boogie On & On",
+    "artist": "Beenzino",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a1/b3/7c/a1b37cbd-2735-a524-d72c-68b91e2a1ce8/mzaf_4039384818952932491.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/d2/a6/84/d2a68415-a4df-77b8-4c66-7292bc8816e1/8809534465994_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "몸이 저절로 춤추게 만드는 빈지노의 감각적인 플로우와 그루브 💃"
+  },
+  {
+    "title": "BAND",
+    "artist": "CHANGMO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ff/97/1b/ff971b86-51a4-b5e9-0144-9f98d971faeb/mzaf_5104999310991799391.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/08/3c/ef/083cef07-9b35-a1a0-7154-bef0127e9d69/888272095685_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "창모, 해쉬스완, 애쉬아일랜드, 김효은의 앰비션 단체 파티 트랙 🎸"
+  },
+  {
+    "title": "너 때문에 미쳐",
+    "artist": "티아라",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/52/f5/cd/52f5cde1-cb99-5149-0455-61de7bfdc2e7/mzaf_15264039526468092609.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/11/ba/f6/11baf62d-5eb9-4a05-a77d-23c7b048ffea/cover_KM0000479_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "치명적인 일렉트로닉 댄스! 심장을 때리는 강렬한 킥드럼 사운드 ⚡",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "So Hot",
+    "artist": "원더걸스",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3a/91/b6/3a91b6eb-a4d5-dc4c-b280-e58deff5940c/mzaf_16357986224699496792.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/38/02/86/380286ea-e4d3-5a54-0e96-e0d9a3657759/WSL_2.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘난 너무 매력 있어!’ 호피 무늬 의상과 함께 당당한 도도함의 절정 🔥",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Oh!",
+    "artist": "소녀시대",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d3/0f/2a/d30f2a32-148e-716c-c888-fa3d257c72ff/mzaf_6617427209061559731.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/b0/6e/a3/b06ea3f3-54c3-d637-3572-19b8c14817ef/asset.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "치어리더 컨셉의 정점! ‘오빠를 사랑해 Ah!’ 애교 넘치는 국민 댄스송 📣",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "추격자",
+    "artist": "인피니트",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/39/84/df/3984df75-5fd9-a296-537b-6060fd52f44a/mzaf_7742870416679559822.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/88/b7/d3/88b7d37d-07db-ff0c-c5ee-09004593b1ed/cover-.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "국악 선율과 일렉트로닉의 신선한 만남! 숨 가쁘게 몰아치는 드라마틱 넘버 🐎",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "아름다운 밤이야",
+    "artist": "비스트",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/3f/b6/8b3fb6d6-dbd4-1576-9398-9bb5c2a87536/mzaf_12088744223166017090.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/0b/d4/ae/0bd4ae40-8eee-de14-8fe5-621a9f192911/Fiction_And_Fact.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘이 밤의 끝을 잡고 뛰어봐!’ 밤새도록 달리는 술자리에 제격인 일렉트로 팝 🎆",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "NoNoNo",
+    "artist": "에이핑크",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/23/b0/45/23b04545-9854-b863-f5d0-c974efd868eb/mzaf_8714009102318342462.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/26/d6/ce/26d6cef6-17e8-33b3-145d-2c5e399c068f/KM0002664-_-0331.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘슬퍼하지 마 No No No!’ 언제 들어도 힘이 번쩍 나는 대국민 힐링 송 💖",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Dance The Night Away",
+    "artist": "TWICE",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ca/d3/5c/cad35cd2-27ef-a9de-b3a3-87bc0c061a05/mzaf_1215013658427705560.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c6/28/a9/c628a9ba-7141-297e-6032-b52422999ed5/20190313_6PM_TWICE_2_3000x3000.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "한여름 밤 해변 파티에 온 듯 시원하게 터지는 청량 파티 앤섬 🌊",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "손오공 (Super)",
+    "artist": "SEVENTEEN",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e5/4d/1d/e54d1d2a-f109-e3e0-3012-b7e4955a01bd/mzaf_2048819850320235326.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f0/69/16/f0691679-835f-8b9b-5baa-292b7e49423f/196922894992_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘아이 러브 마이 팀, 아이 러브 마이 크루!’ 웅장한 비트와 폭발적 에너지 🐒",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "음악의 신",
+    "artist": "SEVENTEEN",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c1/f2/53/c1f253c4-e2d0-44c2-f916-4d1e916af9bd/mzaf_16213706570078819804.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f0/69/16/f0691679-835f-8b9b-5baa-292b7e49423f/196922894992_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "쿵치팍치 쿵쿵치팍치! 세상 모든 슬픔을 날려버리는 흥겨운 페스티벌 리듬 🥁",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Whiplash",
+    "artist": "aespa",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/91/84/e5/9184e5d0-54c8-eccc-e62c-e3175a88b396/mzaf_13467227653896090925.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1a/26/5d/1a265da7-ff45-8df0-ee94-7b79becfc7d9/888735949562.png/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "세련된 테크노 EDM 하우스 비트! 듣는 순간 클럽 한가운데로 소환 🏎️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Drama",
+    "artist": "aespa",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/dc/9b/1fdc9b25-04dd-515c-b5da-8dc132ed39b6/mzaf_5682330302212897053.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f7/f0/5c/f7f05ce4-e5a4-900d-e087-1dd9668b2b34/888735945939.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘Drama-ma-ma!’ 당당하고 파워풀한 걸크러시를 뿜어내는 웰메이드 트랙 🎭",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Kitsch",
+    "artist": "IVE",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9b/cb/5b/9bcb5b63-1486-b06f-9d93-b9cefcbc4fca/mzaf_10078736151105433721.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/99/bb/3a/99bb3a49-4014-db32-5d11-3825a289d9ed/cover_KM0017019_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘우리만의 자유로운 19!’ 반전 드롭으로 도파민을 자극하는 키치 앤섬 🕶️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "출석체크 (feat. 나얼)",
+    "artist": "Dynamicduo",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a7/74/2a/a7742aa8-a469-ccb6-a994-d07d2886b065/mzaf_8151483031002535177.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/75/8b/33/758b3327-c90d-d6f6-d2f9-a69fd4524c91/8809603542335_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘하나 둘 셋 넷 출석체크!’ 회식 자리 출석 체크할 때 무조건 트는 곡 📋",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "불꽃놀이 (Fireworks)",
+    "artist": "Dynamicduo",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/1d/94/cb1d9480-4675-8f8c-a7fa-459501c1b10f/mzaf_8602799194328636386.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ff/34/4f/ff344f3d-31b0-6c99-c28e-f3e241bf0a27/8809603545916_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "가슴이 뻥 뚫리는 시원한 록 비트와 다듀의 찰떡 래핑이 폭발하는 축제 곡 🎇",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "고백 (Go Back)",
+    "artist": "Dynamicduo",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8e/6d/7c/8e6d7c47-9183-c034-4f72-e92060f433c1/mzaf_665356770282607605.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/dc/cb/44/dccb44ed-c2b2-f999-52ee-9aa4dceec626/888272108453_Cover.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "학창 시절 추억을 떠올리며 진솔하게 부르는 대한민국 힙합 클래식 📻",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Ring My Bell (feat. 나얼)",
+    "artist": "Dynamicduo",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/cf/4d/25cf4d8f-bb35-f0e8-14fc-8f566d5afb60/mzaf_8560821892414637556.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/38/ec/97/38ec9762-ed4f-c8de-0729-bc7178b1d8f1/888272096767_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "다이나믹듀오 전설의 1집 타이틀! 나얼의 소울풀 보컬과 펑키한 힙합 🔔",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "그땐 그땐 그땐",
+    "artist": "슈프림팀",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/96/63/08/9663085a-7354-324d-1025-16452debeb6f/mzaf_12807955045081664058.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c7/1c/02/c71c029d-915e-1633-e7c4-53b784256bd3/mzi.fophzfia.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "영소울의 감미로운 보컬과 쌈디·이센스의 독보적 감성 래핑 🌧️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Supermagic",
+    "artist": "슈프림팀",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7d/ef/6d/7def6dcf-24db-d675-9191-0b20c1dfd73d/mzaf_11216014047551176839.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b8/de/98/b8de98f0-c99b-2884-5705-74878baf7ff8/8809603545947_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘슈퍼매직!’ 축제 무대를 단숨에 뒤집어놓았던 에너지 200% 파티 힙합 🪄",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "땡땡땡",
+    "artist": "슈프림팀",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a0/40/51/a040519d-17e5-6824-e5d9-0c5abb9554f2/mzaf_18028984891741081723.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/7e/3d/6c/7e3d6cd5-b1b0-d0fa-385f-6ced45fb7d11/8809603545961_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘학교 종이 땡땡땡!’ 거침없는 래핑과 유쾌한 비트가 일품인 힙합 명곡 🔔",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Love Love Love",
+    "artist": "Epik High",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/ae/b9/37aeb929-0715-06c1-eef3-348e3321f7d7/mzaf_8283722819175619514.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/c3/56/b2/c356b23d-6844-46a8-bbfc-1206dbfcde52/08809114102691_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘러브 러브 러브!’ 2000년대를 휩쓴 에픽하이의 감성 일렉트로 힙합 💖",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "One (feat. 지선)",
+    "artist": "Epik High",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a1/ec/71/a1ec7175-df32-9deb-b339-acfbc58db95c/mzaf_12301659052828656320.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/d3/70/0d/d3700dea-ad51-4863-afaf-9fe8bc016010/08809231381580_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "지선의 신비로운 보컬과 타블로의 철학적 가사가 돋보이는 명곡 ☝️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "우산 (feat. 윤하)",
+    "artist": "Epik High",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/ae/b9/37aeb929-0715-06c1-eef3-348e3321f7d7/mzaf_8283722819175619514.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/c3/56/b2/c356b23d-6844-46a8-bbfc-1206dbfcde52/08809114102691_Cover.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "비 오는 날 술집에서 무조건 흘러나오는 레전드 감성 힙합 발라드 ☔",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Artist",
+    "artist": "ZICO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/97/9a/26/979a26fa-31e1-e2ff-eab2-6f8974e38b5b/mzaf_11208439370314255165.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/33/0b/bb/330bbb00-4167-eac7-7a9e-bd10130c4712/cover_KM0021093_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘We are Artist!’ 창의력과 흥을 무한대로 끌어올리는 지코표 펑키 비트 🎨",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "괴짜 (Freak)",
+    "artist": "ZICO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/52/5d/ca525d05-de1f-5c43-05e0-db8d5864558b/mzaf_6060476149911861558.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9d/be/8d/9dbe8d1f-90fd-bb8f-5cc4-d9cad8466915/cover_KM0020983_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "도시가 뒤집히는 듯한 압도적인 텐션! 에너지 폭발 술자리용 치트키 🤪",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "너는 나 나는 너",
+    "artist": "ZICO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8d/c7/5b/8dc75b0c-ef00-bc1e-f437-e80be443852f/mzaf_11573920364844622064.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/db/af/a6/dbafa664-5092-dc01-cef2-88976198be7f/cover_KM0020984_1.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "달달한 어반 R&B 감성으로 썸 타는 남녀의 마음을 무장해제시키는 곡 🍯",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Aqua Man",
+    "artist": "Beenzino",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bc/bc/86/bcbc869c-7f11-6489-9c21-6ce3de1be976/mzaf_13547903096193604349.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/d2/a6/84/d2a68415-a4df-77b8-4c66-7292bc8816e1/8809534465994_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘하루 종일 너란 바닷속을 항해하는 나는 아쿠아맨!’ 힙스터들의 찬가 🐠",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "몸매 (MOMMAE) (feat. Ugly Duck)",
+    "artist": "Jay Park",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ad/ac/f2/adacf2d0-fc3e-2c2a-0393-f2f5ea5572ff/mzaf_6878351801667745628.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/20/79/bd/2079bd42-bc44-c02a-a0bb-3f3149488c4d/8809380633011_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "대한민국 클럽을 평정한 최고의 힙합 앤섬! 술자리 분위기 후끈 달아오름 🔥",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "All I Wanna Do (K)",
+    "artist": "Jay Park",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9b/bc/d4/9bbcd469-6167-9621-f1ab-7565a2c8d61d/mzaf_17039218675439176204.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c9/98/8e/c9988e81-4b47-969d-eb3f-7dbf10926875/8809380634810_Cover.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "그레이의 명품 비트와 박재범의 달콤한 보컬이 어우러진 R&B 명작 🥂",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "좋아 (JOAH)",
+    "artist": "Jay Park",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/02/94/860294ab-8d23-534c-e551-a3320493f89f/mzaf_555639373522703138.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/a1/1d/a6/a11da67f-1d34-fc46-c7eb-499c36bbfcba/8809259909766_Cover.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "봄바람처럼 간질간질한 멜로디! 썸 분위기를 달콤하게 물들이는 고백 송 🌸",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "아름다워",
+    "artist": "CHANGMO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/87/4b/88/874b8840-20d1-a4f6-665a-88284f565cbe/mzaf_5091910066810337734.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a9/7d/74/a97d742d-13fa-d765-0d25-c255fb2b7fad/8809492070704_Cover.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "피아노 반주에 실린 창모의 진심 어린 사랑 고백! 떼창 필수 명곡 💐",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "마에스트로 (Maestro)",
+    "artist": "CHANGMO",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6f/9e/e5/6f9ee5ed-3d2b-acb2-4e56-9ac183efed92/mzaf_18186734683986721682.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a9/7d/74/a97d742d-13fa-d765-0d25-c255fb2b7fad/8809492070704_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "한국 힙합의 판도를 바꾼 천재 피아니스트 래퍼 창모의 시그니처 🎼",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "야망보이 (Ambition Boy)",
+    "artist": "Leellamarz",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/58/e6/d8/58e6d8c3-e456-903c-f343-39ba6ae9674c/mzaf_10040770139394413561.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/34/75/25/34752526-e88c-ab46-5165-c5b5a9ad9e3e/8809658313805_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "청춘의 뜨거운 열정과 성공을 노래하는 릴러말즈의 대표 히트곡 🚀",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "호구 (feat. 브라더수)",
+    "artist": "Giriboy",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/7f/72/0d7f72b8-bedf-686e-cc02-9d3771c1a791/mzaf_11821140283430123920.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/90/48/7d/90487db7-b963-58db-3003-7b011bf3ea58/COVER-_DS.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "찌질하지만 귀여운 사랑 이야기! 기리보이 특유의 찰진 라임과 감성 🧸",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "피어나",
+    "artist": "체리필터",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1f/a6/f7/1fa6f70f-82f8-8560-8bcd-525a2e3c02e7/mzaf_16937959387182670532.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e4/ee/df/e4eedf48-2703-d4ff-7e78-1fc7819fb36c/cover_KM0020605_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "조유진의 폭발적인 고음 샤우팅! 듣기만 해도 도파민 터지는 파워풀 록 🌸",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "서른 즈음에",
+    "artist": "김광석",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/72/cb/e4/72cbe4b5-f1b0-ea36-3865-3e7a49f08582/mzaf_18288364007141360420.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/e6/77/ff/e677ff80-afb2-fdab-baaa-76b04f3a978c/jacket-3029.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "나이 먹어갈수록 가슴을 후벼파는 인생의 술자리 영구 결번 명곡 🍂",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "먼지가 되어",
+    "artist": "김광석",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/fa/f7/78faf712-6ae8-3626-9579-fc2aba6e8062/mzaf_3882200758590600715.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/03/13/b2/0313b2b9-2d60-a776-9820-c6940ed22714/jacket-334495.jpg/300x300bb.jpg",
+    "mood": "normal",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "포크 록의 영원한 불멸 클래식! 통기타 리듬에 맞춰 함께 부르는 노래 🌫️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "사랑했지만",
+    "artist": "김광석",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4b/ce/a6/4bcea6dd-48a7-af6b-5fdb-5bab07006d7b/mzaf_15839321928247796834.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/03/13/b2/0313b2b9-2d60-a776-9820-c6940ed22714/jacket-334495.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "소주 한 잔 비우며 가슴 저미는 목소리로 읊조리는 한국인의 심금 💧",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "소주 한 잔",
+    "artist": "임창정",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ee/a4/a0/eea4a095-3d68-5f42-2539-92e21191f033/mzaf_3025244440499856183.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cc/aa/31/ccaa317f-4589-7541-62d4-b2c4b8f01680/825646346950.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "술자리 끝판왕! 노래방에서 남자들이 목청 찢어지게 부르는 소주 찬가 🍶",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "내가 저지른 사랑",
+    "artist": "임창정",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f7/1b/8a/f71b8a2a-5b93-6da1-f3d2-390790cda605/mzaf_17665494621922849663.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/17/3d/54173dff-2390-ae6c-a5e1-076d4fa1edc6/cover_KM0021019_1.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "어마무시한 고음과 절절한 감성으로 차트를 올킬했던 임창정표 발라드 💔",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "라라라",
+    "artist": "SG워너비",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/63/4e/7f634edd-85ee-be8c-4f53-5c06d2735dde/mzaf_3599924972790554841.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/da/93/81/da9381dd-b6ae-29b3-fb46-a61b8441c57a/08809309171686_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "신나는 컨트리 풍 멜로디와 함께 다 같이 ‘라라라’ 떼창하는 국민 힐링곡 🌾",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "내사람 (Partner For Life)",
+    "artist": "SG워너비",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c8/98/b4/c898b406-142c-3832-29ea-53acd4f47ce7/mzaf_10599783496224421834.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/67/fa/c9/67fac9b1-e770-efa2-51e5-2d9ed02fa71e/3000.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "소몰이 창법의 황금기! 가슴을 울리는 진한 우정과 사랑의 찬가 🤝",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "미소천사",
+    "artist": "성시경",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/97/b3/9897b3b9-4a44-753e-1ce9-3897d9a25f4c/mzaf_9282829654884676827.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/30/86/6e/30866e34-2cb4-3518-ef08-0b9486996c3f/8809114100321_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘이 시대 최고의 댄스곡은 모다?!’ 술자리 분위기를 뒤집는 유쾌한 치트키 🕺",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "선물",
+    "artist": "MeloMance",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4f/dd/cc/4fddccff-52db-c28d-aa18-8ed3375c76f1/mzaf_13642041709941844693.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/cf/4a/a7/cf4aa700-fb5c-df67-4c8f-66d56d6f5c29/887928016876.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "김민석의 맑고 높은 음색과 설렘 가득한 피아노 선율의 힐링 명곡 🎁",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "모든 날, 모든 순간",
+    "artist": "Paul Kim",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fd/02/65/fd026582-acff-107b-657e-725e82ade606/mzaf_13214848125267621317.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/fb/45/a5/fb45a5f3-e172-f3c7-05df-733d16c8fc31/OST3_A_Fin.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "BAND",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "진심 어린 가사와 따스한 목소리로 지친 마음을 어루만져 주는 축가 🕯️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "챔피언",
+    "artist": "싸이 (PSY)",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/93/c7/d0/93c7d012-f8e1-43ab-303b-a5a67031b8e1/mzaf_2220901554678631904.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/6a/8c/69/6a8c6943-d079-75a9-92d7-e9784abfc5d8/8809522701530.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘진정 즐길 줄 아는 여러분이 이 나라의 챔피언입니다!’ 술자리 대폭발 🔥",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "That That (prod. & feat. SUGA)",
+    "artist": "싸이 (PSY)",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/60/64/a6/6064a6d7-e61b-54cc-fd08-9ad4b7217366/mzaf_7836890234109674594.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/77/a3/98/77a39810-e45e-35de-fe20-dbe809ac789d/8806384535815.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "방탄소년단 슈가와의 환상 콜라보! 끝없는 텐션 질주의 파티 넘버 🤠",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "8282",
+    "artist": "다비치",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/d0/99/4ed0990f-022d-294f-86ca-33a09d9b260a/mzaf_16772270836805044807.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6b/5c/4d/6b5c4db9-9c5e-ca69-d8f2-b6e4ca363617/cover_KM0002247_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘Give me a call baby baby!’ 발라드에서 폭발적인 댄스로 전환되는 반전의 노래방 대통령 👑",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "애상",
+    "artist": "쿨 (COOL)",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/e7/a4/1ae7a496-5235-39a7-7ee1-46f102c3cd38/mzaf_5818915264084768319.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/37/5e/fd/375efdd1-67c3-0a3b-d27f-65b7f270d539/18677.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘알잖아 너를 이토록!’ 한국 90년대 댄스곡의 영원한 황제 쿨의 청량 댄스 ☀️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "순정",
+    "artist": "코요태",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/61/45/e3/6145e3ee-0151-601c-e401-cfca26b88d4a/mzaf_2056763855327439279.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e8/15/65/e8156595-d3b5-2f8c-34ae-d9953e419355/190296512131.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘워~ 워~ 워어!’ 전주 나오는 순간 온몸이 들썩이는 대한민국 최고의 혼성 댄스 🐎",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Run To You",
+    "artist": "DJ DOC",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5f/ef/0f/5fef0fd6-bf8b-9520-180e-7fc9cfc29f27/mzaf_10703678502399136089.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/82/9d/34/829d342c-021f-8231-f90f-c1bd7be96d18/mzi.gfczhhwq.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘바운스 바운스 바운스!’ 술자리를 한순간에 페스티벌로 바꾸는 전설의 파티 앤섬 🦘",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "말해줘 (feat. 엄정화)",
+    "artist": "지누션",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/df/37/57/df375729-a0ae-c0d5-5259-c35744f12527/mzaf_9524816020746390938.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/c1/d2/43/c1d24350-f22a-3827-7094-1d7d4de86780/8806197905423.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "HIPHOP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘나에게 말해줘 사실을 말해줘!’ 90년대 힙합의 시작을 알린 최고의 듀엣 댄스 📻",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "회상 (December)",
+    "artist": "터보",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/10/d6/c3/10d6c323-5945-81a1-699f-e1fc1d3b651d/mzaf_8792734579278437411.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music22/v4/d6/d5/8a/d6d58a5b-1312-8969-4890-df2efcbad86c/asset.jpg/300x300bb.jpg",
+    "mood": "chill",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "겨울 바다와 하얀 눈이 생각나는 감미로운 김종국 보컬의 레전드 명곡 ❄️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "검은 고양이 네로",
+    "artist": "터보",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/02/9d/31029d87-758b-be2e-d43d-b8631748c88c/mzaf_10620923703574696624.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music62/v4/db/eb/55/dbeb5559-721c-2320-dd0c-01e53f54bfcf/asset.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "대한민국을 강타했던 초고속 댄스! 남녀노소 누구나 따라 추는 신나는 비트 🐱",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Tears",
+    "artist": "소찬휘",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/38/d8/da/38d8dac9-127f-026e-802f-c6baff3f2d32/mzaf_9768259024677205286.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b4/76/42/b476422c-83a1-349d-dbaa-1bcc85c194f8/8806384512441_cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘잔인한~ 여자라~!’ 한국 노래방 고음 1위이자 술자리 목청 터지는 전설의 록 댄스 ⚡",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "잘못된 만남",
+    "artist": "김건모",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6e/95/0d/6e950d8f-03b4-6182-4a00-e38d26f57670/mzaf_47413412637852238.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/26/ae/61/26ae61fc-bc76-99c5-5873-75e9fafc57ce/cover_KM0019195_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "280만 장 판매 기네스북 기록! 대한민국 역사상 가장 빠른 스피드 댄스 앤섬 🏎️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "쿵따리 샤바라",
+    "artist": "클론",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/35/9a/bd/359abd7e-75fb-a112-a338-3b0865d1882b/mzaf_813279759223266637.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/17/3e/5b173e6b-10da-1a37-db8d-0099d6f3d32e/cover_KM0019183_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘마음이 답답하고 답답할 때!’ 전 국민을 들썩이게 만든 불후의 여름 댄스 🌴",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "포이즌",
+    "artist": "엄정화",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a6/4d/b4/a64db406-89b5-2b01-f63c-b77d05fd4e82/mzaf_16013650634551749205.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a3/a9/d6/a3a9d68e-1297-c34b-872f-6cb515322896/cover_KM0017938_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘널 떠날 거야~!’ V맨 김종민과의 환상 케미를 자랑하는 레전드 디바 댄스 🖤",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Festival (인생은 아름다워)",
+    "artist": "엄정화",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e8/f0/d4/e8f0d411-8041-a9f2-31b0-f3550edb4348/mzaf_1593087743462326961.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f9/d3/cd/f9d3cd47-9eec-ec03-70bc-6d7b5f7e8db6/cover_KM0017939_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘이제는 웃는 거야 Smile again!’ 축제 분위기 1000% 보장하는 국민 응원가 🎡",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "버스 안에서",
+    "artist": "자자",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/12/b4/d4/12b4d412-69ec-3c98-d83d-e46413e5ac4d/mzaf_13076916001993679197.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0a/50/58/0a5058f2-a96c-5117-673f-c1b0936fd246/8809499942622_cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘나는 매일 학교 가는 버스 안에서!’ 전주부터 어깨춤 터지는 90년대 클럽 명곡 🚌",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "맨발의 청춘",
+    "artist": "벅",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/52/c8/8e/52c88ee1-e244-da62-2815-dae75d69c8bf/mzaf_17129412755820738616.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e9/31/28/e9312885-3ada-3506-7d94-91ff802b93dc/8806184752825_cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘와다다다다다!’ 술자리 2차 3차에서 무조건 원샷을 부르는 폭주 댄스 🏃",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "10 Minutes",
+    "artist": "이효리",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7a/0a/00/7a0a00df-bac2-e413-e671-0e6bf536c14d/mzaf_12805257667504683425.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/10/e3/f5/10e3f5e5-bce5-1735-8f50-89343d802d00/cover-_Stylish.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "단 10분 만에 너를 사로잡아! 대한민국을 뒤흔든 2000년대 Y2K 신드롬 👑",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "U-Go-Girl",
+    "artist": "이효리",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/c8/71/eec87144-c264-5d27-111f-579c9fbd52f6/mzaf_6813631571337434435.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/ab/16/3e/ab163ee2-f83b-b894-7509-4686595cdcc2/8809231382365_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘고민고민하지 마 Girl!’ 통통 튀는 브라스와 당당한 매력의 댄스 팝 💄",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "촛불하나",
+    "artist": "god",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c4/db/c4/c4dbc49c-31ea-6738-0e0c-84625b598fb7/mzaf_11838414664214248557.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/64/8b/93/648b93b7-4a00-9862-4bb4-230179c7ab5f/8804524011205_cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘지치고 힘들 때 내게 기대!’ 남녀노소 다 같이 어깨동무하고 떼창하는 국민 위로곡 🕯️",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Brand New",
+    "artist": "신화",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b9/05/4e/b9054ef0-05b7-fc4d-acfb-63f4032400f9/mzaf_5741332580340341648.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/f0/ad/c0/f0adc0a7-9668-10d6-547f-b16ccb918fd7/08809144344481_Cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "완벽한 수트 퍼포먼스와 칼군무! 1세대 아이돌의 정점을 찍은 대상 수상곡 🕺",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "내 귀에 캔디 (feat. 택연)",
+    "artist": "백지영",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5b/a7/80/5ba78097-7eca-328a-84d6-9f672ddb8ab9/mzaf_7838631653904687006.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/3d/69/88/3d6988b0-a332-4baa-341d-45dbb4e70a15/cover_KAL071002_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘내 귀에 캔디 꿀처럼 달콤해!’ 남녀 듀엣 술자리 댄스 1순위 치트키 🍬",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Dash",
+    "artist": "백지영",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/29/e3/3729e3b0-49ad-3e87-1a5d-4845248421fc/mzaf_593288115643198454.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c7/61/be/c761be9d-5960-397a-5874-6c5f33fe7621/102924_1.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "라틴 댄스의 원조! 화려한 턴과 폭발적인 가창력의 세기말 댄스 대작 💃",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "Honey",
+    "artist": "박진영",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ab/04/39/ab043905-f23d-d77a-5f9e-c4c7b5b3a0f0/mzaf_6295194151736937192.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3c/e3/6b/3ce36b0e-25c4-f979-cc83-986e5e413a76/76918.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "도입부 ‘Honey~’ 한마디로 종결! 펑키한 그루브와 잔망 넘치는 리듬 🍯",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "그녀와의 이별",
+    "artist": "김현정",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/dd/51/52/dd5152bd-f820-3819-b61f-f6cb66bb8f04/mzaf_7619670053915884351.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/41/47/3e/41473ef6-1d26-3a0f-db5f-eb3c98dcb05e/cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "롱다리 미녀 가수의 시원한 3옥타브 샤우팅! 속이 뻥 뚫리는 사이다 댄스 🎤",
+    "spotifyTrackId": ""
+  },
+  {
+    "title": "멍",
+    "artist": "김현정",
+    "audioUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/25/5d/4e255d2c-785a-5ad7-45ba-bb9b918b2dbe/mzaf_3718072277926455416.plus.aac.p.m4a",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/3c/ad/da/3caddac2-62af-e9f6-ce46-de644ab703d3/cover.jpg/300x300bb.jpg",
+    "mood": "high",
+    "genre": "K-POP",
+    "youtubeId": "vjl_uRTeOfU",
+    "description": "‘다 돌려놔!’ 팔을 풍차처럼 돌리며 스트레스 한 방에 날리는 떼창곡 🌪️",
+    "spotifyTrackId": ""
   }
 ];
 
@@ -4634,6 +6299,7 @@
       genre: null,
       mood: 'normal',
       playMode: 'automix', // 'automix', 'manual'
+      isMissionLocked: false,
       playedKeys: new Set(),
       playedMissions: new Set(),
       playedBanters: new Set(),
@@ -4919,28 +6585,33 @@
       const track = pickRandom(unplayed.length > 0 ? unplayed : pool);
       state.playedKeys.add((track.title + '---' + track.artist).toLowerCase());
 
-      // 3. Situation-Aware Contextual Missions (No-repeat shuffle)
+      // 3. Situation-Aware Contextual Missions (Respects isMissionLocked)
       const grp = state.groupType || '미팅/과팅';
       const rnd = state.round || '1차';
-      let missionList = [];
+      let mission = null;
+      if (state.isMissionLocked && state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        mission = state.history[state.historyIdx].mission;
+      } else {
+        let missionList = [];
 
-      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {
-        missionList = SITUATION_MISSIONS[grp][rnd];
-      } else if (SITUATION_MISSIONS[grp]) {
-        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
-      }
+        if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {
+          missionList = SITUATION_MISSIONS[grp][rnd];
+        } else if (SITUATION_MISSIONS[grp]) {
+          Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+        }
 
-      if (!missionList || missionList.length === 0) {
-        missionList = MISSIONS_DB[mood] || MISSIONS_DB['normal'];
-      }
+        if (!missionList || missionList.length === 0) {
+          missionList = MISSIONS_DB[mood] || MISSIONS_DB['normal'];
+        }
 
-      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
-      if (unplayedMissions.length === 0) {
-        state.playedMissions.clear();
-        unplayedMissions = missionList;
+        let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+        if (unplayedMissions.length === 0) {
+          state.playedMissions.clear();
+          unplayedMissions = missionList;
+        }
+        mission = pickRandom(unplayedMissions);
+        state.playedMissions.add(mission.title);
       }
-      const mission = pickRandom(unplayedMissions);
-      state.playedMissions.add(mission.title);
 
       // 4. Situation-Aware AI DJ Host Banters (No-repeat shuffle)
       let banterList = [];
@@ -5195,6 +6866,210 @@
       bgm.pause();
       document.getElementById('screen-console').classList.add('hidden');
       document.getElementById('screen-setup').classList.remove('hidden');
+    }
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      } else {
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }
+    }
+
+    function updateMissionLockUI() {
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      } else {
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }
+    }
+
+    function rerollMissionOnly() {
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      } else if (SITUATION_MISSIONS[grp]) {
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }
+      if (!missionList || missionList.length === 0) {
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {
+        state.history[state.historyIdx].mission = newMission;
+      }
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${newMission.ruleTitle} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${newMission.ruleTitle}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${idx + 1}</span><span class="text-zinc-200">${step}</span>`;
+          modalSteps.appendChild(li);
+        });
+      }
+
+      showToast(`🎲 새 미션 교체: [${newMission.title}]`);
+    }
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${seconds}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {
+        current -= 1;
+        if (current > 0) {
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        } else {
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 350);
+          setTimeout(() => {
+            cancelSpeedTimer();
+          }, 2200);
+        }
+      }, 1000);
+    }
+
+    function cancelSpeedTimer() {
+      if (speedTimerInterval) {
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }
+    }
+
+    function closeBottleSpinner() {
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function spinBottle() {
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {
+          bottleGraphic.style.transform = `rotate(${bottleAngle}deg)`;
+        }
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        } else {
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {
+            laser.style.transform = `translateX(-50%) rotate(${bottleAngle}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {
+            soundEngine.playAirhorn();
+          }, 300);
+        }
+      }
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
     }
   </script>
 </body>

@@ -41,6 +41,210 @@ html_content = f'''<!DOCTYPE html>
         }}
       }}
     }}
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {{
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {{
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      }} else {{
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }}
+    }}
+
+    function updateMissionLockUI() {{
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      }} else {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }}
+    }}
+
+    function rerollMissionOnly() {{
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {{
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      }} else if (SITUATION_MISSIONS[grp]) {{
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }}
+      if (!missionList || missionList.length === 0) {{
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }}
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {{
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }}
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {{
+        state.history[state.historyIdx].mission = newMission;
+      }}
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${{newMission.ruleTitle}} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${{newMission.ruleTitle}}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {{
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {{
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${{idx + 1}}</span><span class="text-zinc-200">${{step}}</span>`;
+          modalSteps.appendChild(li);
+        }});
+      }}
+
+      showToast(`🎲 새 미션 교체: [${{newMission.title}}]`);
+    }}
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {{
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${{seconds}}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {{
+        current -= 1;
+        if (current > 0) {{
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        }} else {{
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 350);
+          setTimeout(() => {{
+            cancelSpeedTimer();
+          }}, 2200);
+        }}
+      }}, 1000);
+    }}
+
+    function cancelSpeedTimer() {{
+      if (speedTimerInterval) {{
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }}
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {{
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {{
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }}
+    }}
+
+    function closeBottleSpinner() {{
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    function spinBottle() {{
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {{
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {{
+          bottleGraphic.style.transform = `rotate(${{bottleAngle}}deg)`;
+        }}
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {{
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }}
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {{
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        }} else {{
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {{
+            laser.style.transform = `translateX(-50%) rotate(${{bottleAngle}}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }}
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 300);
+        }}
+      }}
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
+    }}
   </script>
 
   <style>
@@ -277,6 +481,74 @@ html_content = f'''<!DOCTYPE html>
         osc.start(now);
         osc.stop(now + 0.22);
       }}
+      playCountdownBeep(freq = 880) {{
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      }}
+
+      playTimeOutBuzzer() {{
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.linearRampToValueAtTime(105, now + 0.5);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.52);
+      }}
+
+      playBottleSpin() {{
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1100 + Math.random() * 400, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }}
+
+      playFanfare() {{
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {{
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.3, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.26);
+        }});
+      }}
+
       playAirhorn() {{
         if (this.isMuted) return;
         this.init();
@@ -377,6 +649,210 @@ html_content = f'''<!DOCTYPE html>
       }}
     }}
     const soundEngine = new PartySoundEngine();
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {{
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {{
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      }} else {{
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }}
+    }}
+
+    function updateMissionLockUI() {{
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      }} else {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }}
+    }}
+
+    function rerollMissionOnly() {{
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {{
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      }} else if (SITUATION_MISSIONS[grp]) {{
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }}
+      if (!missionList || missionList.length === 0) {{
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }}
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {{
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }}
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {{
+        state.history[state.historyIdx].mission = newMission;
+      }}
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${{newMission.ruleTitle}} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${{newMission.ruleTitle}}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {{
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {{
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${{idx + 1}}</span><span class="text-zinc-200">${{step}}</span>`;
+          modalSteps.appendChild(li);
+        }});
+      }}
+
+      showToast(`🎲 새 미션 교체: [${{newMission.title}}]`);
+    }}
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {{
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${{seconds}}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {{
+        current -= 1;
+        if (current > 0) {{
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        }} else {{
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 350);
+          setTimeout(() => {{
+            cancelSpeedTimer();
+          }}, 2200);
+        }}
+      }}, 1000);
+    }}
+
+    function cancelSpeedTimer() {{
+      if (speedTimerInterval) {{
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }}
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {{
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {{
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }}
+    }}
+
+    function closeBottleSpinner() {{
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    function spinBottle() {{
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {{
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {{
+          bottleGraphic.style.transform = `rotate(${{bottleAngle}}deg)`;
+        }}
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {{
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }}
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {{
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        }} else {{
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {{
+            laser.style.transform = `translateX(-50%) rotate(${{bottleAngle}}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }}
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 300);
+        }}
+      }}
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
+    }}
   </script>
 
   <!-- Main Container (Cyber-Rave DJ Console Flight Case) -->
@@ -752,6 +1228,26 @@ html_content = f'''<!DOCTYPE html>
             <span class="text-[10px] font-black mt-0.5 tracking-tight">원샷 카운트</span>
           </button>
         </div>
+
+        <!-- ⚡️ Party Mini Toolkit (3초/5초 스피드 타이머 & 소주병 돌리기) -->
+        <div class="mt-2.5 pt-2 border-t border-zinc-800/90 flex items-center justify-between">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-[10px] font-black text-amber-400 flex items-center space-x-1">
+              <span>⏱️</span>
+              <span>타이머:</span>
+            </span>
+            <button onclick="startSpeedTimer(3)" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950/90 text-amber-300 border border-amber-500/80 hover:bg-amber-900 shadow-[0_0_8px_rgba(245,158,11,0.4)] flex items-center space-x-1">
+              <span>⚡ 3초</span>
+            </button>
+            <button onclick="startSpeedTimer(5)" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-orange-950/90 text-orange-300 border border-orange-500/80 hover:bg-orange-900 shadow-[0_0_8px_rgba(249,115,22,0.4)] flex items-center space-x-1">
+              <span>🔥 5초</span>
+            </button>
+          </div>
+          <button onclick="openBottleSpinner()" class="arcade-btn px-3 py-1 rounded-lg text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-500 hover:bg-emerald-900 shadow-[0_0_12px_rgba(16,185,129,0.45)] flex items-center space-x-1.5">
+            <span>🍾</span>
+            <span>소주병 돌리기</span>
+          </button>
+        </div>
       </div>
 
       <!-- AI MC Dialogue Bubble (Live On-Air Studio with bouncing voice waveform) -->
@@ -776,10 +1272,23 @@ html_content = f'''<!DOCTYPE html>
       <div id="missionContainer" class="flex-1 bg-gradient-to-b from-zinc-900 via-black to-zinc-950 border-2 border-neonCyan/50 rounded-2xl p-4 flex flex-col justify-between shadow-2xl neon-border-cyan transition-all">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span id="missionTag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-950 text-cyan-200 border border-cyan-500/60 shadow">
-              🎯 이번 라운드 미션
-            </span>
-            <span class="text-[10px] text-zinc-400 font-bold" id="missionCategoryTag">테이블 공통</span>
+            <div class="flex items-center space-x-2">
+              <span id="missionTag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-950 text-cyan-200 border border-cyan-500/60 shadow">
+                🎯 이번 라운드 미션
+              </span>
+              <span class="text-[10px] text-zinc-400 font-bold" id="missionCategoryTag">테이블 공통</span>
+            </div>
+            
+            <!-- 🔒 Mission Lock & Reroll Controls -->
+            <div class="flex items-center space-x-1.5">
+              <button id="missionLockBtn" onclick="toggleMissionLock()" class="arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all" title="음악이 바뀌어도 미션 고정 유지">
+                <span id="missionLockIcon">🔓</span>
+                <span id="missionLockText">미션 변경 중</span>
+              </button>
+              <button onclick="rerollMissionOnly()" class="arcade-btn px-2 py-1 rounded-lg text-[10px] font-black bg-purple-950 text-purple-200 border border-purple-700 hover:bg-purple-900 flex items-center space-x-1" title="음악은 유지하고 미션만 새로 뽑기">
+                <span>🎲 다른 미션</span>
+              </button>
+            </div>
           </div>
           <h2 id="missionTitle" class="text-lg sm:text-xl font-black text-white tracking-tight mt-1 leading-tight">
             상황 맞춤 술자리 미션
@@ -832,6 +1341,93 @@ html_content = f'''<!DOCTYPE html>
       </div>
 
     </section>
+
+  <!-- ⏱ Speed Countdown Overlay Modal -->
+  <div id="speedTimerModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md transition-all">
+    <div class="relative flex flex-col items-center justify-center p-8 text-center">
+      <div id="timerNumber" class="text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-100 transition-transform duration-200">
+        3
+      </div>
+      <div id="timerSubText" class="mt-4 text-sm sm:text-base font-bold text-zinc-300 tracking-wider">
+        순발력 스피드 카운트다운!
+      </div>
+      <button onclick="cancelSpeedTimer()" class="mt-8 px-5 py-2 rounded-full bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-600 text-xs font-bold">
+        ✕ 닫기 / 취소
+      </button>
+    </div>
+  </div>
+
+  <!-- 🍾 Digital Soju Bottle Spinner Modal -->
+  <div id="bottleSpinModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md p-4 transition-all">
+    <div class="relative w-full max-w-sm bg-zinc-950/95 border border-emerald-500/60 rounded-3xl p-6 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex flex-col items-center text-center">
+      
+      <!-- Top header -->
+      <div class="w-full flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div class="flex items-center space-x-1.5 text-xs font-black text-emerald-400">
+          <span>🍾</span>
+          <span>테이블 소주병 룰렛</span>
+        </div>
+        <button onclick="closeBottleSpinner()" class="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Instruction / Result Toast -->
+      <div id="bottleStatusText" class="my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900">
+        병을 터치하거나 돌리기 버튼을 누르세요!
+      </div>
+
+      <!-- Spinning Table & Bottle Area -->
+      <div class="relative w-64 h-64 my-2 flex items-center justify-center cursor-pointer select-none" onclick="spinBottle()">
+        <!-- Radar Circles & Compass Directions -->
+        <div class="absolute inset-0 rounded-full border border-dashed border-emerald-800/60 flex items-center justify-center">
+          <div class="w-48 h-48 rounded-full border border-emerald-500/20 flex items-center justify-center">
+            <div class="w-32 h-32 rounded-full border border-emerald-500/30"></div>
+          </div>
+        </div>
+
+        <!-- 8 Direction Indicators -->
+        <span class="absolute top-1 text-[10px] font-black text-zinc-500">12시</span>
+        <span class="absolute bottom-1 text-[10px] font-black text-zinc-500">6시</span>
+        <span class="absolute left-1 text-[10px] font-black text-zinc-500">9시</span>
+        <span class="absolute right-1 text-[10px] font-black text-zinc-500">3시</span>
+
+        <!-- Neon Targeting Laser Beam -->
+        <div id="bottleLaserBeam" class="hidden absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-28 bg-gradient-to-t from-emerald-400 to-transparent shadow-[0_0_15px_rgba(52,211,153,1)] pointer-events-none"></div>
+
+        <!-- Realistic Korean Soju Bottle SVG -->
+        <div id="sojuBottleGraphic" class="relative z-10 transition-transform origin-center" style="transform: rotate(0deg);">
+          <svg width="68" height="170" viewBox="0 0 68 170" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-[0_0_20px_rgba(16,185,129,0.6)]">
+            <!-- Bottle Cap -->
+            <rect x="26" y="2" width="16" height="12" rx="2" fill="#047857" stroke="#34D399" stroke-width="1.5"/>
+            <!-- Neck -->
+            <path d="M28 14H40V44L48 56H20L28 44V14Z" fill="#065F46" stroke="#10B981" stroke-width="1.5"/>
+            <!-- Main Body -->
+            <rect x="14" y="56" width="40" height="102" rx="10" fill="#047857" stroke="#10B981" stroke-width="2"/>
+            <!-- Inner Glass Gloss -->
+            <rect x="17" y="60" width="8" height="92" rx="4" fill="white" fill-opacity="0.25"/>
+            <!-- White Paper Label -->
+            <rect x="16" y="76" width="36" height="52" rx="3" fill="#F8FAFC" stroke="#E2E8F0"/>
+            <!-- Label Text & Illustration -->
+            <text x="34" y="98" font-size="10" font-weight="900" fill="#047857" text-anchor="middle" font-family="sans-serif">참이슬</text>
+            <text x="34" y="112" font-size="7" font-weight="bold" fill="#64748B" text-anchor="middle" font-family="sans-serif">Fresh 16.5°</text>
+            <circle cx="34" cy="120" r="2.5" fill="#EF4444"/>
+            <!-- Bottom Rim -->
+            <rect x="16" y="156" width="36" height="4" rx="2" fill="#064E3B"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="w-full mt-4 flex items-center space-x-2">
+        <button onclick="spinBottle()" id="spinActionBtn" class="arcade-btn flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 border border-emerald-400 text-sm font-black text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center space-x-1.5">
+          <span>🌀</span>
+          <span>소주병 휙 돌리기!</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
 
     <!-- SCREEN 3: 게임 설명 바텀 시트 / 모달 -->
     <div id="gameRuleModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -2422,6 +3018,7 @@ html_content = f'''<!DOCTYPE html>
       genre: null,
       mood: 'normal',
       playMode: 'automix', // 'automix', 'manual'
+      isMissionLocked: false,
       playedKeys: new Set(),
       playedMissions: new Set(),
       playedBanters: new Set(),
@@ -2707,28 +3304,33 @@ html_content = f'''<!DOCTYPE html>
       const track = pickRandom(unplayed.length > 0 ? unplayed : pool);
       state.playedKeys.add((track.title + '---' + track.artist).toLowerCase());
 
-      // 3. Situation-Aware Contextual Missions (No-repeat shuffle)
+      // 3. Situation-Aware Contextual Missions (Respects isMissionLocked)
       const grp = state.groupType || '미팅/과팅';
       const rnd = state.round || '1차';
-      let missionList = [];
+      let mission = null;
+      if (state.isMissionLocked && state.historyIdx >= 0 && state.history[state.historyIdx]) {{
+        mission = state.history[state.historyIdx].mission;
+      }} else {{
+        let missionList = [];
 
-      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {{
-        missionList = SITUATION_MISSIONS[grp][rnd];
-      }} else if (SITUATION_MISSIONS[grp]) {{
-        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
-      }}
+        if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {{
+          missionList = SITUATION_MISSIONS[grp][rnd];
+        }} else if (SITUATION_MISSIONS[grp]) {{
+          Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+        }}
 
-      if (!missionList || missionList.length === 0) {{
-        missionList = MISSIONS_DB[mood] || MISSIONS_DB['normal'];
-      }}
+        if (!missionList || missionList.length === 0) {{
+          missionList = MISSIONS_DB[mood] || MISSIONS_DB['normal'];
+        }}
 
-      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
-      if (unplayedMissions.length === 0) {{
-        state.playedMissions.clear();
-        unplayedMissions = missionList;
+        let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+        if (unplayedMissions.length === 0) {{
+          state.playedMissions.clear();
+          unplayedMissions = missionList;
+        }}
+        mission = pickRandom(unplayedMissions);
+        state.playedMissions.add(mission.title);
       }}
-      const mission = pickRandom(unplayedMissions);
-      state.playedMissions.add(mission.title);
 
       // 4. Situation-Aware AI DJ Host Banters (No-repeat shuffle)
       let banterList = [];
@@ -2983,6 +3585,210 @@ html_content = f'''<!DOCTYPE html>
       bgm.pause();
       document.getElementById('screen-console').classList.add('hidden');
       document.getElementById('screen-setup').classList.remove('hidden');
+    }}
+
+    // ==========================================
+    // 🔒 MISSION LOCK & REROLL
+    // ==========================================
+    function toggleMissionLock() {{
+      state.isMissionLocked = !state.isMissionLocked;
+      soundEngine.playScratch();
+      updateMissionLockUI();
+      if (state.isMissionLocked) {{
+        showToast("🔒 미션 고정: 음악이 바뀌어도 미션이 유지됩니다.");
+      }} else {{
+        showToast("🔓 미션 고정 해제: 다음 라운드부터 새 미션이 나옵니다.");
+      }}
+    }}
+
+    function updateMissionLockUI() {{
+      const btn = document.getElementById('missionLockBtn');
+      const icon = document.getElementById('missionLockIcon');
+      const txt = document.getElementById('missionLockText');
+      if (!btn) return;
+      if (state.isMissionLocked) {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)] flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔒";
+        if (txt) txt.textContent = "미션 고정됨";
+      }} else {{
+        btn.className = "arcade-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-amber-400 flex items-center space-x-1 transition-all";
+        if (icon) icon.textContent = "🔓";
+        if (txt) txt.textContent = "미션 변경 중";
+      }}
+    }}
+
+    function rerollMissionOnly() {{
+      soundEngine.playScratch();
+      const grp = state.groupType || '미팅/과팅';
+      const rnd = state.round || '1차';
+      let missionList = [];
+      if (SITUATION_MISSIONS[grp] && SITUATION_MISSIONS[grp][rnd]) {{
+        missionList = SITUATION_MISSIONS[grp][rnd];
+      }} else if (SITUATION_MISSIONS[grp]) {{
+        Object.values(SITUATION_MISSIONS[grp]).forEach(arr => missionList.push(...arr));
+      }}
+      if (!missionList || missionList.length === 0) {{
+        missionList = MISSIONS_DB[state.mood] || MISSIONS_DB['normal'];
+      }}
+      let unplayedMissions = missionList.filter(m => !state.playedMissions.has(m.title));
+      if (unplayedMissions.length === 0) {{
+        state.playedMissions.clear();
+        unplayedMissions = missionList;
+      }}
+      const newMission = pickRandom(unplayedMissions);
+      state.playedMissions.add(newMission.title);
+
+      if (state.historyIdx >= 0 && state.history[state.historyIdx]) {{
+        state.history[state.historyIdx].mission = newMission;
+      }}
+
+      document.getElementById('missionTitle').textContent = newMission.title;
+      document.getElementById('missionDesc').textContent = newMission.desc;
+      document.getElementById('ruleBtnLabel').textContent = `${{newMission.ruleTitle}} 보기`;
+      document.getElementById('modalRuleTitle').textContent = `🎲 ${{newMission.ruleTitle}}`;
+      
+      const modalSteps = document.getElementById('modalRuleSteps');
+      if (modalSteps) {{
+        modalSteps.innerHTML = '';
+        newMission.steps.forEach((step, idx) => {{
+          const li = document.createElement('li');
+          li.className = 'flex items-start space-x-2';
+          li.innerHTML = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-cyan-500/20 text-neonCyan text-[10px] font-black shrink-0 mt-0.5">${{idx + 1}}</span><span class="text-zinc-200">${{step}}</span>`;
+          modalSteps.appendChild(li);
+        }});
+      }}
+
+      showToast(`🎲 새 미션 교체: [${{newMission.title}}]`);
+    }}
+
+    // ==========================================
+    // ⏱ SPEED TIMER (3초 / 5초)
+    // ==========================================
+    let speedTimerInterval = null;
+    function startSpeedTimer(seconds) {{
+      if (speedTimerInterval) clearInterval(speedTimerInterval);
+      const modal = document.getElementById('speedTimerModal');
+      const numEl = document.getElementById('timerNumber');
+      const subEl = document.getElementById('timerSubText');
+      if (!modal || !numEl) return;
+
+      modal.classList.remove('hidden');
+      let current = seconds;
+      numEl.textContent = current;
+      numEl.className = "text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-orange-500 to-red-600 drop-shadow-[0_0_35px_rgba(245,158,11,0.8)] scale-125 transition-transform duration-150";
+      setTimeout(() => numEl.classList.remove('scale-125'), 150);
+      subEl.textContent = `${{seconds}}초 안에 답하세요!`;
+      soundEngine.playCountdownBeep(880);
+
+      speedTimerInterval = setInterval(() => {{
+        current -= 1;
+        if (current > 0) {{
+          numEl.textContent = current;
+          numEl.classList.add('scale-125');
+          setTimeout(() => numEl.classList.remove('scale-125'), 150);
+          soundEngine.playCountdownBeep(880 + (seconds - current) * 140);
+        }} else {{
+          clearInterval(speedTimerInterval);
+          speedTimerInterval = null;
+          numEl.textContent = "🚨 땡!";
+          numEl.className = "text-6xl sm:text-7xl font-black text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,1)] animate-bounce";
+          subEl.textContent = "시간 초과! 패배자 원샷!";
+          soundEngine.playTimeOutBuzzer();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 350);
+          setTimeout(() => {{
+            cancelSpeedTimer();
+          }}, 2200);
+        }}
+      }}, 1000);
+    }}
+
+    function cancelSpeedTimer() {{
+      if (speedTimerInterval) {{
+        clearInterval(speedTimerInterval);
+        speedTimerInterval = null;
+      }}
+      const modal = document.getElementById('speedTimerModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    // ==========================================
+    // 🍾 DIGITAL SOJU BOTTLE SPINNER
+    // ==========================================
+    let bottleAngle = 0;
+    let bottleVelocity = 0;
+    let isBottleSpinning = false;
+    let bottleAnimFrame = null;
+
+    function openBottleSpinner() {{
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) {{
+        modal.classList.remove('hidden');
+        document.getElementById('bottleLaserBeam').classList.add('hidden');
+        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+      }}
+    }}
+
+    function closeBottleSpinner() {{
+      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
+      isBottleSpinning = false;
+      const modal = document.getElementById('bottleSpinModal');
+      if (modal) modal.classList.add('hidden');
+    }}
+
+    function spinBottle() {{
+      if (isBottleSpinning) return;
+      isBottleSpinning = true;
+      document.getElementById('bottleLaserBeam').classList.add('hidden');
+      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
+      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
+      
+      soundEngine.playScratch();
+
+      bottleVelocity = 34 + Math.random() * 26;
+      const friction = 0.976 + (Math.random() * 0.007);
+      let lastClickAngle = bottleAngle;
+
+      function updateSpin() {{
+        bottleAngle = (bottleAngle + bottleVelocity) % 360;
+        const bottleGraphic = document.getElementById('sojuBottleGraphic');
+        if (bottleGraphic) {{
+          bottleGraphic.style.transform = `rotate(${{bottleAngle}}deg)`;
+        }}
+
+        if (Math.abs(bottleAngle - lastClickAngle) > 45) {{
+          soundEngine.playBottleSpin();
+          lastClickAngle = bottleAngle;
+        }}
+
+        bottleVelocity *= friction;
+
+        if (bottleVelocity > 0.15) {{
+          bottleAnimFrame = requestAnimationFrame(updateSpin);
+        }} else {{
+          isBottleSpinning = false;
+          bottleAnimFrame = null;
+          
+          const laser = document.getElementById('bottleLaserBeam');
+          if (laser) {{
+            laser.style.transform = `translateX(-50%) rotate(${{bottleAngle}}deg)`;
+            laser.style.transformOrigin = "bottom center";
+            laser.classList.remove('hidden');
+          }}
+
+          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
+          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
+          
+          soundEngine.playFanfare();
+          setTimeout(() => {{
+            soundEngine.playAirhorn();
+          }}, 300);
+        }}
+      }}
+
+      bottleAnimFrame = requestAnimationFrame(updateSpin);
     }}
   </script>
 </body>
