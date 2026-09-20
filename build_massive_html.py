@@ -984,11 +984,10 @@ html_content = f'''<!DOCTYPE html>
         <span class="absolute left-1 text-[10px] font-black text-zinc-500">9시</span>
         <span class="absolute right-1 text-[10px] font-black text-zinc-500">3시</span>
 
-        <!-- Neon Targeting Laser Beam -->
-        <div id="bottleLaserBeam" class="hidden absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-28 bg-gradient-to-t from-emerald-400 to-transparent shadow-[0_0_15px_rgba(52,211,153,1)] pointer-events-none"></div>
-
-        <!-- Realistic Korean Soju Bottle SVG -->
-        <div id="sojuBottleGraphic" class="relative z-10 transition-transform origin-center" style="transform: rotate(0deg);">
+        <!-- Realistic Korean Soju Bottle SVG Container -->
+        <div id="sojuBottleGraphic" class="relative z-10 origin-center" style="transform: rotate(0deg); will-change: transform;">
+          <!-- Neon Targeting Laser Beam emerging straight from bottle cap -->
+          <div id="bottleLaserBeam" class="hidden absolute -top-20 left-1/2 -translate-x-1/2 w-1.5 h-24 bg-gradient-to-t from-emerald-300 via-emerald-400 to-transparent shadow-[0_0_20px_rgba(52,211,153,1)] pointer-events-none rounded-full"></div>
           <svg width="68" height="170" viewBox="0 0 68 170" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-[0_0_20px_rgba(16,185,129,0.6)]">
             <!-- Bottle Cap -->
             <rect x="26" y="2" width="16" height="12" rx="2" fill="#047857" stroke="#34D399" stroke-width="1.5"/>
@@ -3308,24 +3307,28 @@ html_content = f'''<!DOCTYPE html>
     // ==========================================
     // 🍾 DIGITAL SOJU BOTTLE SPINNER
     // ==========================================
-    let bottleAngle = 0;
-    let bottleVelocity = 0;
+    let currentBottleAngle = 0;
     let isBottleSpinning = false;
-    let bottleAnimFrame = null;
+    let bottleSpinTimeouts = [];
 
     function openBottleSpinner() {{
       const modal = document.getElementById('bottleSpinModal');
       if (modal) {{
         modal.classList.remove('hidden');
-        document.getElementById('bottleLaserBeam').classList.add('hidden');
-        document.getElementById('bottleStatusText').textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
-        document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+        const laser = document.getElementById('bottleLaserBeam');
+        if (laser) laser.classList.add('hidden');
+        const status = document.getElementById('bottleStatusText');
+        if (status) {{
+          status.textContent = "병을 터치하거나 돌리기 버튼을 누르세요!";
+          status.className = "my-3 text-xs font-bold text-zinc-300 bg-zinc-900/90 px-4 py-1.5 rounded-full border border-emerald-900";
+        }}
       }}
     }}
 
     function closeBottleSpinner() {{
-      if (bottleAnimFrame) cancelAnimationFrame(bottleAnimFrame);
       isBottleSpinning = false;
+      bottleSpinTimeouts.forEach(t => clearTimeout(t));
+      bottleSpinTimeouts = [];
       const modal = document.getElementById('bottleSpinModal');
       if (modal) modal.classList.add('hidden');
     }}
@@ -3333,54 +3336,62 @@ html_content = f'''<!DOCTYPE html>
     function spinBottle() {{
       if (isBottleSpinning) return;
       isBottleSpinning = true;
-      document.getElementById('bottleLaserBeam').classList.add('hidden');
-      document.getElementById('bottleStatusText').textContent = "빙글빙글 회전 중... 과연 누구에게?!";
-      document.getElementById('bottleStatusText').className = "my-3 text-xs font-bold text-amber-300 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-600 animate-pulse";
-      
-      soundEngine.playScratch();
+      bottleSpinTimeouts.forEach(t => clearTimeout(t));
+      bottleSpinTimeouts = [];
 
-      bottleVelocity = 34 + Math.random() * 26;
-      const friction = 0.976 + (Math.random() * 0.007);
-      let lastClickAngle = bottleAngle;
+      const bottleGraphic = document.getElementById('sojuBottleGraphic');
+      const laser = document.getElementById('bottleLaserBeam');
+      const statusText = document.getElementById('bottleStatusText');
+      if (laser) laser.classList.add('hidden');
 
-      function updateSpin() {{
-        bottleAngle = (bottleAngle + bottleVelocity) % 360;
-        const bottleGraphic = document.getElementById('sojuBottleGraphic');
-        if (bottleGraphic) {{
-          bottleGraphic.style.transform = `rotate(${{bottleAngle}}deg)`;
-        }}
-
-        if (Math.abs(bottleAngle - lastClickAngle) > 45) {{
-          soundEngine.playBottleSpin();
-          lastClickAngle = bottleAngle;
-        }}
-
-        bottleVelocity *= friction;
-
-        if (bottleVelocity > 0.15) {{
-          bottleAnimFrame = requestAnimationFrame(updateSpin);
-        }} else {{
-          isBottleSpinning = false;
-          bottleAnimFrame = null;
-          
-          const laser = document.getElementById('bottleLaserBeam');
-          if (laser) {{
-            laser.style.transform = `translateX(-50%) rotate(${{bottleAngle}}deg)`;
-            laser.style.transformOrigin = "bottom center";
-            laser.classList.remove('hidden');
-          }}
-
-          document.getElementById('bottleStatusText').textContent = "🎯 당첨! 화살표가 가리킨 사람이 벌칙주 당첨!";
-          document.getElementById('bottleStatusText').className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)] animate-bounce";
-          
-          soundEngine.playFanfare();
-          setTimeout(() => {{
-            soundEngine.playAirhorn();
-          }}, 300);
-        }}
+      if (statusText) {{
+        statusText.textContent = "🌀 빙글빙글 회전 중... 과연 누구에게?!";
+        statusText.className = "my-3 text-xs font-black text-amber-300 bg-amber-950/90 px-4 py-1.5 rounded-full border border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse";
       }}
 
-      bottleAnimFrame = requestAnimationFrame(updateSpin);
+      // Initial spin audio: scratch & windup
+      soundEngine.playScratch();
+
+      // Dramatic multi-turn rotation: 6 to 9 full spins + random stopping angle
+      const fullRotations = (6 + Math.floor(Math.random() * 4)) * 360;
+      const randomStop = Math.floor(Math.random() * 360);
+      currentBottleAngle += (fullRotations + randomStop);
+
+      const durationSec = 3.6;
+      // Ultra-smooth physical deceleration (Cubic-Bezier) - 60-120fps GPU accelerated
+      bottleGraphic.style.transition = `transform ${{durationSec}}s cubic-bezier(0.12, 0.86, 0.22, 1.0)`;
+      bottleGraphic.style.transform = `rotate(${{currentBottleAngle}}deg)`;
+
+      // Dynamic clicking sound timing as bottle slows down
+      const clickDelays = [0.2, 0.45, 0.75, 1.1, 1.5, 1.95, 2.4, 2.8, 3.15, 3.45];
+      clickDelays.forEach(delay => {{
+        const tid = setTimeout(() => {{
+          if (isBottleSpinning) {{
+            soundEngine.playBottleSpin();
+          }}
+        }}, delay * 1000);
+        bottleSpinTimeouts.push(tid);
+      }});
+
+      // Stop & Winner announcement
+      const endTid = setTimeout(() => {{
+        isBottleSpinning = false;
+
+        // Show targeting laser beam
+        if (laser) laser.classList.remove('hidden');
+
+        if (statusText) {{
+          statusText.textContent = "🎯 당첨! 병목이 가리킨 사람이 벌칙주 당첨!";
+          statusText.className = "my-3 text-xs font-black text-emerald-300 bg-emerald-950 px-4 py-1.5 rounded-full border border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.8)] animate-bounce";
+        }}
+
+        soundEngine.playFanfare();
+        const hornTid = setTimeout(() => {{
+          soundEngine.playAirhorn();
+        }}, 350);
+        bottleSpinTimeouts.push(hornTid);
+      }}, durationSec * 1000);
+      bottleSpinTimeouts.push(endTid);
     }}
   </script>
 </body>
